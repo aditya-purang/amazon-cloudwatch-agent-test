@@ -11,7 +11,6 @@ import (
 	"os"
 
 	"github.com/mitchellh/mapstructure"
-	"golang.org/x/exp/slices"
 )
 
 type matrixRow struct {
@@ -109,10 +108,6 @@ var testTypeToTestConfig = map[string][]testConfig{
 			terraformDir: "terraform/ec2/creds",
 			targets:      map[string]map[string]struct{}{"os": {"al2": {}}},
 		},
-		{
-			testDir: "./test/app_signals",
-			targets: map[string]map[string]struct{}{"os": {"al2": {}}, "arc": {"amd64": {}}},
-		},
 	},
 	/*
 		You can only place 1 mac instance on a dedicate host a single time.
@@ -127,14 +122,6 @@ var testTypeToTestConfig = map[string][]testConfig{
 		{testDir: "../../../test/restart"},
 		{testDir: "../../../test/acceptance"},
 		{testDir: "../../../test/feature/windows/event_logs"},
-		{
-			testDir: "../../../test/feature/windows/custom_start/userdata",
-			targets: map[string]map[string]struct{}{"os": {"win-2019": {}}},
-		},
-		{
-			testDir: "../../../test/feature/windows/custom_start/ssm_start",
-			targets: map[string]map[string]struct{}{"os": {"win-2019": {}}},
-		},
 		// assume role test doesn't add much value, and it already being tested with linux
 		//{testDir: "../../../test/assume_role"},
 	},
@@ -193,29 +180,6 @@ var testTypeToTestConfig = map[string][]testConfig{
 	},
 }
 
-type partition struct {
-	configName string
-	tests      []string
-	ami        []string
-}
-
-var partitionTests = map[string]partition{
-	"commercial": {
-		configName: "",
-		tests:      []string{},
-		ami:        []string{},
-	},
-	"itar": {
-		configName: "_itar",
-		tests:      []string{testTypeKeyEc2Linux},
-		ami:        []string{"cloudwatch-agent-integration-test-aarch64-al2023*"},
-	},
-	"china": {configName: "_china",
-		tests: []string{testTypeKeyEc2Linux},
-		ami:   []string{"cloudwatch-agent-integration-test-aarch64-al2023*"},
-	},
-}
-
 func copyAllEC2LinuxTestForOnpremTesting() {
 	/* Some tests need to be fixed in order to run in both environment, so for now for PoC, run one that works.
 	   testTypeToTestConfig["ec2_linux_onprem"] = testTypeToTestConfig[testTypeKeyEc2Linux]
@@ -232,17 +196,12 @@ func main() {
 	copyAllEC2LinuxTestForOnpremTesting()
 
 	for testType, testConfigs := range testTypeToTestConfig {
-		for _, partition := range partitionTests {
-			if len(partition.tests) != 0 && !slices.Contains(partition.tests, testType) {
-				continue
-			}
-			testMatrix := genMatrix(testType, testConfigs, partition.ami)
-			writeTestMatrixFile(testType+partition.configName, testMatrix)
-		}
+		testMatrix := genMatrix(testType, testConfigs)
+		writeTestMatrixFile(testType, testMatrix)
 	}
 }
 
-func genMatrix(testType string, testConfigs []testConfig, ami []string) []matrixRow {
+func genMatrix(testType string, testConfigs []testConfig) []matrixRow {
 	openTestMatrix, err := os.Open(fmt.Sprintf("generator/resources/%v_test_matrix.json", testType))
 
 	if err != nil {
@@ -271,10 +230,6 @@ func genMatrix(testType string, testConfigs []testConfig, ami []string) []matrix
 			err = mapstructure.Decode(test, &row)
 			if err != nil {
 				log.Panicf("can't decode map test %v to metric line struct with error %v", testConfig, err)
-			}
-
-			if len(ami) != 0 && !slices.Contains(ami, row.Ami) {
-				continue
 			}
 
 			if testConfig.targets == nil || shouldAddTest(&row, testConfig.targets) {

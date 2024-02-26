@@ -21,16 +21,32 @@ var (
 
 	ServerConsumerInstructions = []dimension.Instruction{
 		{
+			Key:   "HostedIn.EKS.Cluster",
+			Value: dimension.UnknownDimensionValue(),
+		},
+		{
+			Key:   "HostedIn.K8s.Namespace",
+			Value: dimension.ExpectedDimensionValue{Value: aws.String("default")},
+		},
+		{
 			Key:   "Service",
 			Value: dimension.ExpectedDimensionValue{Value: aws.String("service-name")},
 		},
 		{
 			Key:   "Operation",
-			Value: dimension.ExpectedDimensionValue{Value: aws.String("replaced-operation")},
+			Value: dimension.ExpectedDimensionValue{Value: aws.String("operation")},
 		},
 	}
 
 	ClientProducerInstructions = []dimension.Instruction{
+		{
+			Key:   "HostedIn.EKS.Cluster",
+			Value: dimension.UnknownDimensionValue(),
+		},
+		{
+			Key:   "HostedIn.K8s.Namespace",
+			Value: dimension.ExpectedDimensionValue{Value: aws.String("default")},
+		},
 		{
 			Key:   "Service",
 			Value: dimension.ExpectedDimensionValue{Value: aws.String("service-name")},
@@ -41,7 +57,7 @@ var (
 		},
 		{
 			Key:   "Operation",
-			Value: dimension.ExpectedDimensionValue{Value: aws.String("replaced-operation")},
+			Value: dimension.ExpectedDimensionValue{Value: aws.String("operation")},
 		},
 		{
 			Key:   "RemoteOperation",
