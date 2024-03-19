@@ -90,6 +90,7 @@ func getEc2TestRunners(env *environment.MetaData) []*test_runner.TestRunner {
 }
 
 func (suite *AppSignalsTestSuite) TestAllInSuite() {
+
 	env := environment.GetEnvironmentMetaData()
 	switch env.ComputeType {
 	case computetype.EKS:
