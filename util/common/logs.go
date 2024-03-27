@@ -142,6 +142,7 @@ func getLogFilePaths(configPath string) ([]string, error) {
 // (log being monitored will be overwritten - it is needed for json structure)
 // returns the path of the config generated and a list of log stream names
 func GenerateLogConfig(numberMonitoredLogs int, filePath string) error {
+	fmt.Println("This is hte nubme ro f montiored logs and file path: ", numberMonitoredLogs, filePath)
 	if numberMonitoredLogs == 0 || filePath == "" {
 		return errors.New("number of monitored logs or file path is empty")
 	}
@@ -162,10 +163,12 @@ func GenerateLogConfig(numberMonitoredLogs int, filePath string) error {
 	}
 	defer file.Close()
 
+	fmt.Println("We go to this point")
 	fileBytes, err := io.ReadAll(file)
 	if err != nil {
 		return err
 	}
+	fmt.Println("We go to this point")
 
 	err = json.Unmarshal(fileBytes, &cfgFileData)
 	if err != nil {
@@ -174,6 +177,7 @@ func GenerateLogConfig(numberMonitoredLogs int, filePath string) error {
 
 	var logFiles []LogInfo
 	tempFolder := getTempFolder()
+	fmt.Println("We go to this point")
 
 	for i := 0; i < numberMonitoredLogs; i++ {
 		logFiles = append(logFiles, LogInfo{
