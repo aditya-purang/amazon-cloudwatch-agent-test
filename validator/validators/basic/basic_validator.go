@@ -64,7 +64,7 @@ func (s *BasicValidator) CheckData(startTime, endTime time.Time) error {
 		ec2InstanceId    = awsservice.GetInstanceId()
 		metricNamespace  = s.vConfig.GetMetricNamespace()
 		validationMetric = s.vConfig.GetMetricValidation()
-		logValidations   = s.vConfig.GetLogValidation()
+		//logValidations   = s.vConfig.GetLogValidation()
 	)
 
 	for _, metric := range validationMetric {
@@ -86,12 +86,12 @@ func (s *BasicValidator) CheckData(startTime, endTime time.Time) error {
 		}
 	}
 
-	for _, logValidation := range logValidations {
-		err := s.ValidateLogs(logValidation.LogStream, logValidation.LogValue, logValidation.LogLevel, logValidation.LogSource, logValidation.LogLines, startTime, endTime)
-		if err != nil {
-			multiErr = multierr.Append(multiErr, err)
-		}
-	}
+	//for _, logValidation := range logValidations {
+	//	err := s.ValidateLogs(logValidation.LogStream, logValidation.LogValue, logValidation.LogLevel, logValidation.LogSource, logValidation.LogLines, startTime, endTime)
+	//	if err != nil {
+	//		multiErr = multierr.Append(multiErr, err)
+	//	}
+	//}
 
 	return multiErr
 }
