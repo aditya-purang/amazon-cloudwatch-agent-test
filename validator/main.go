@@ -7,6 +7,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 	"strings"
 	"time"
 
@@ -56,13 +57,13 @@ func main() {
 			log.Fatalf("Failed to create validation config : %v \n", err)
 		}
 
-		//if *preparationMode {
-		//	if err = prepare(vConfig); err != nil {
-		//		log.Fatalf("Prepare for validation failed: %v \n", err)
-		//	}
-		//
-		//	os.Exit(0)
-		//}
+		if *preparationMode {
+			if err = prepare(vConfig); err != nil {
+				log.Fatalf("Prepare for validation failed: %v \n", err)
+			}
+
+			os.Exit(0)
+		}
 		err = validate(vConfig)
 		if err != nil {
 			log.Fatalf("Failed to validate: %v", err)
@@ -100,7 +101,7 @@ func prepare(vConfig models.ValidateConfig) error {
 		numberLogsMonitored = vConfig.GetNumberMonitoredLogs()
 		agentConfigFilePath = vConfig.GetCloudWatchAgentConfigPath()
 	)
-	fmt.Println("This is the config file path: ", *configPath)
+	fmt.Println(configPath)
 	switch dataType {
 	case "logs":
 		err = common.GenerateLogConfig(numberLogsMonitored, agentConfigFilePath)
