@@ -57,6 +57,7 @@ func init() {
 	ctx = context.Background()
 	var err error
 	awsCfg, err = config.LoadDefaultConfig(ctx)
+	awsCfg.Region = "us-west-2"
 	if err != nil {
 		// handle error
 		fmt.Println("There was an error trying to load default config: ", err)
