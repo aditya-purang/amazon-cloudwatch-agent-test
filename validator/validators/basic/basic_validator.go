@@ -151,7 +151,6 @@ func (s *BasicValidator) ValidateMetric(metricName, metricNamespace string, metr
 	log.Printf("Start to collect and validate metric %s with the namespace %s, start time %v and end time %v \n", metricName, metricNamespace, startTime, endTime)
 
 	log.Println("These are the metrid Queries: ", metricQueries, metricQueries[0], metricQueries[0].Label)
-	log.Println("These are the metrid Queries: ", metricQueries, metricQueries[0], *metricQueries[0].Label)
 
 	metrics, err := awsservice.GetMetricData(metricQueries, startTime, endTime)
 	if err != nil {
@@ -188,6 +187,7 @@ func (s *BasicValidator) buildMetricQueries(metricName, metricNamespace string, 
 		MetricName: aws.String(metricName),
 		Dimensions: metricDimensions,
 	}
+	fmt.Println("Building Metric Query, this is metric information", metricInformation)
 
 	metricDataQueries := []cwtypes.MetricDataQuery{
 		{
