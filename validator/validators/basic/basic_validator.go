@@ -146,11 +146,14 @@ func (s *BasicValidator) ValidateMetric(metricName, metricNamespace string, metr
 	var (
 		boundAndPeriod = s.vConfig.GetAgentCollectionPeriod().Seconds()
 	)
+	fmt.Println(metricName)
+	fmt.Println(metricNamespace)
+	fmt.Println(metricDimensions)
 	metricQueries := s.buildMetricQueries(metricName, metricNamespace, metricDimensions)
 
 	log.Printf("Start to collect and validate metric %s with the namespace %s, start time %v and end time %v \n", metricName, metricNamespace, startTime, endTime)
 
-	log.Println("These are the metrid Queries: ", metricQueries, metricQueries[0], metricQueries[0].Label)
+	log.Println("These are the metrid Queries: ", metricQueries[0].Label, metricQueries[0].MetricStat, metricQueries[0].Id)
 
 	metrics, err := awsservice.GetMetricData(metricQueries, startTime, endTime)
 	if err != nil {
