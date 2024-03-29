@@ -15,7 +15,7 @@ values_per_minute: "2"
 # Number of seconds the agent should run and collect the metrics. In this case, 1 minutes
 agent_collection_period: 60
 
-cloudwatch_agent_config: "<cloudwatch_agent_config>"
+cloudwatch_agent_config: "/tmp/agent.json"
 
 # Metric that the test needs to validate; moreover, the feature validation already has
 # InstanceID dimension; therefore, does not need to validate it

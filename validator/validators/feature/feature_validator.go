@@ -36,14 +36,14 @@ func (s *FeatureValidator) GenerateLoad() error {
 		metricNamespace       = s.vConfig.GetMetricNamespace()
 		dataRate              = s.vConfig.GetDataRate()
 		agentCollectionPeriod = s.vConfig.GetAgentCollectionPeriod()
-		//agentConfigFilePath   = s.vConfig.GetCloudWatchAgentConfigPath()
-		receivers = s.vConfig.GetPluginsConfig()
-		//validationLog         = s.vConfig.GetLogValidation()
+		agentConfigFilePath   = s.vConfig.GetCloudWatchAgentConfigPath()
+		receivers             = s.vConfig.GetPluginsConfig()
+		validationLog         = s.vConfig.GetLogValidation()
 	)
 
-	//if err := common.GenerateLogs(agentConfigFilePath, agentCollectionPeriod, metricSendingInterval, dataRate, validationLog); err != nil {
-	//	multiErr = multierr.Append(multiErr, err)
-	//}
+	if err := common.GenerateLogs(agentConfigFilePath, agentCollectionPeriod, metricSendingInterval, dataRate, validationLog); err != nil {
+		multiErr = multierr.Append(multiErr, err)
+	}
 
 	// Sending metrics based on the receivers; however, for scraping plugin  (e.g prometheus), we would need to scrape it instead of sending
 	for _, receiver := range receivers {
