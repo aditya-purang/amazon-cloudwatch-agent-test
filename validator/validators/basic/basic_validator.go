@@ -146,7 +146,6 @@ func (s *BasicValidator) ValidateMetric(metricName, metricNamespace string, metr
 	var (
 		boundAndPeriod = s.vConfig.GetAgentCollectionPeriod().Seconds()
 	)
-
 	metricQueries := s.buildMetricQueries(metricName, metricNamespace, metricDimensions)
 
 	log.Printf("Start to collect and validate metric %s with the namespace %s, start time %v and end time %v \n", metricName, metricNamespace, startTime, endTime)
@@ -174,7 +173,7 @@ func (s *BasicValidator) ValidateMetric(metricName, metricNamespace string, metr
 	if metricValue != 0.0 && (actualMetricValue < lowerBoundValue || actualMetricValue > upperBoundValue) {
 		return fmt.Errorf("\n metric %s value %f is different from the actual value %f", metricName, metricValue, metrics.MetricDataResults[0].Values[0])
 	}
-
+	fmt.Println("Nice its all good: ", metrics)
 	return nil
 }
 
