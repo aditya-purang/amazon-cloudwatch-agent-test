@@ -42,6 +42,7 @@ module "validator" {
   arc            = var.arc
   family         = "darwin"
   action         = "upload"
+  s3_bucket      = var.s3_bucket
   test_dir       = var.test_dir
   temp_directory = "/tmp"
   cwa_github_sha = var.cwa_github_sha
@@ -113,9 +114,9 @@ resource "null_resource" "integration_test" {
 
       # Install agent and validator binaries
       "echo Install agent and validator binaries",
-#       "/usr/local/bin/aws s3 cp s3://${var.s3_bucket}/integration-test/packaging/${var.cwa_github_sha}/${var.arc}/amazon-cloudwatch-agent.pkg .",
-#       "/usr/local/bin/aws s3 cp s3://${var.s3_bucket}/integration-test/validator/${var.cwa_github_sha}/darwin/${var.arc}/validator .",
-#       "sudo installer -pkg amazon-cloudwatch-agent.pkg -target /",
+      "/usr/local/bin/aws s3 cp s3://${var.s3_bucket}/integration-test/packaging/${var.cwa_github_sha}/${var.arc}/amazon-cloudwatch-agent.pkg .",
+      "/usr/local/bin/aws s3 cp s3://${var.s3_bucket}/integration-test/validator/${var.cwa_github_sha}/darwin/${var.arc}/validator .",
+      "sudo installer -pkg amazon-cloudwatch-agent.pkg -target /",
 
       # Install Golang
       "echo Install golang",
@@ -123,14 +124,15 @@ resource "null_resource" "integration_test" {
 
       # Run Integration test
       "echo Execute integration tests",
-      "export AWS_REGION=us-west-2",
+      "export AWS_REGION=${var.region}",
       "sudo chmod +x ./validator",
-      "./validator --validator-config=/tmp/parameters.yml --preparation-mode=true",
-      "sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/agent_config.json",
-      "./validator --validator-config=/tmp/parameters.yml --preparation-mode=false",
+      "./validator --validator-config=${module.validator.instance_validator_config} --preparation-mode=true",
+      "sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:${module.validator.instance_agent_config}",
+      "./validator --validator-config=${module.validator.instance_validator_config} --preparation-mode=false",
+       "./validator --validator-config=../../../test/feature/mac/parameters.yml --preparation-mode=false",
       "cd ~/amazon-cloudwatch-agent-test",
       "echo run sanity test && sudo go test ./test/sanity -p 1 -v",
-#       "sudo go test ./test/run_as_user -p 1 -timeout 1h -computeType=EC2 -bucket=${var.s3_bucket} -cwaCommitSha=${var.cwa_github_sha} -instanceId=${aws_instance.cwagent.id} -v",
+      "sudo go test ./test/run_as_user -p 1 -timeout 1h -computeType=EC2 -bucket=${var.s3_bucket} -cwaCommitSha=${var.cwa_github_sha} -instanceId=${aws_instance.cwagent.id} -v",
     ]
   }
 
