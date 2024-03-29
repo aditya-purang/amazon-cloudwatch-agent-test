@@ -129,6 +129,8 @@ resource "null_resource" "integration_test" {
       "./validator --validator-config=${module.validator.instance_validator_config} --preparation-mode=true",
       "sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:${module.validator.instance_agent_config}",
       "./validator --validator-config=${module.validator.instance_validator_config} --preparation-mode=false",
+      "./validator --validator-config=./test/feature/mac/appParameters.yml --preparation-mode=true",
+      "./validator --validator-config=./test/feature/mac/appParametersFinal.yml --preparation-mode=false",
       "cd ~/amazon-cloudwatch-agent-test",
       "echo run sanity test && sudo go test ./test/sanity -p 1 -v",
       "sudo go test ./test/run_as_user -p 1 -timeout 1h -computeType=EC2 -bucket=${var.s3_bucket} -cwaCommitSha=${var.cwa_github_sha} -instanceId=${aws_instance.cwagent.id} -v",
