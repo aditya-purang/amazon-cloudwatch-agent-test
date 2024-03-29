@@ -144,6 +144,7 @@ func GetMetricData(metricDataQueries []types.MetricDataQuery, startTime, endTime
 
 	data, err := CwmClient.GetMetricData(ctx, &getMetricDataInput)
 	if err != nil {
+		fmt.Println("uh oh there was a problem getting metric data...... ")
 		return nil, err
 	}
 

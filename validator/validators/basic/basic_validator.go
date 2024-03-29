@@ -173,7 +173,7 @@ func (s *BasicValidator) ValidateMetric(metricName, metricNamespace string, metr
 	if metricValue != 0.0 && (actualMetricValue < lowerBoundValue || actualMetricValue > upperBoundValue) {
 		return fmt.Errorf("\n metric %s value %f is different from the actual value %f", metricName, metricValue, metrics.MetricDataResults[0].Values[0])
 	}
-	fmt.Println("Nice its all good: ", metrics)
+	log.Print("Nice its all good")
 	return nil
 }
 
