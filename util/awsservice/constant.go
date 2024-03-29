@@ -61,15 +61,6 @@ func init() {
 		// handle error
 		fmt.Println("There was an error trying to load default config: ", err)
 	}
-	fmt.Println("There was no error trying to load aws config")
-	Ec2Client = ec2.NewFromConfig(awsCfg)
-	EcsClient = ecs.NewFromConfig(awsCfg)
-	SsmClient = ssm.NewFromConfig(awsCfg)
-	ImdsClient = imds.NewFromConfig(awsCfg)
-	CwmClient = cloudwatch.NewFromConfig(awsCfg)
-	CwlClient = cloudwatchlogs.NewFromConfig(awsCfg)
-	DynamodbClient = dynamodb.NewFromConfig(awsCfg)
-	S3Client = s3.NewFromConfig(awsCfg)
-	CloudformationClient = cloudformation.NewFromConfig(awsCfg)
-	XrayClient = xray.NewFromConfig(awsCfg)
+	fmt.Println("This is the aws region: ", awsCfg.Region)
+
 }
