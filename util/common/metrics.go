@@ -23,12 +23,12 @@ func StartSendingMetrics(receiver string, duration, sendingInterval time.Duratio
 		switch receiver {
 		case "statsd":
 			err = SendStatsdMetrics(metricPerInterval, []string{}, sendingInterval, duration)
-		case "collectd":
-			err = SendCollectDMetrics(metricPerInterval, sendingInterval, duration)
-		case "emf":
-			err = SendEMFMetrics(metricPerInterval, metricLogGroup, metricNamespace, sendingInterval, duration)
-		case "app_signals":
-			err = SendAppSignalMetrics(metricPerInterval, []string{}, sendingInterval, duration) //does app signals have dimension for metric?
+		//case "collectd":
+		//	err = SendCollectDMetrics(metricPerInterval, sendingInterval, duration)
+		//case "emf":
+		//	err = SendEMFMetrics(metricPerInterval, metricLogGroup, metricNamespace, sendingInterval, duration)
+		//case "app_signals":
+		//	err = SendAppSignalMetrics(metricPerInterval, []string{}, sendingInterval, duration) //does app signals have dimension for metric?
 		default:
 		}
 	}()
