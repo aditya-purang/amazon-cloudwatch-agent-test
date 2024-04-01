@@ -152,9 +152,9 @@ func (s *BasicValidator) ValidateMetric(metricName, metricNamespace string, metr
 	fmt.Println(metricDimensions)
 	metricQueries := s.buildMetricQueries(metricName, metricNamespace, metricDimensions)
 
-	log.Printf("Start to collect and validate metric %s with the namespace %s, start time %v and end time %v \n", metricName, metricNamespace, startTime, endTime)
+	//log.Printf("Start to collect and validate metric %s with the namespace %s, start time %v and end time %v \n", metricName, metricNamespace, startTime, endTime)
 
-	log.Println("These are the metric Queries: ", *metricQueries[0].Label, *metricQueries[0].MetricStat, *metricQueries[0].Id)
+	//log.Println("These are the metric Queries: ", *metricQueries[0].Label, *metricQueries[0].MetricStat, *metricQueries[0].Id)
 
 	metrics, err := awsservice.GetMetricData(metricQueries, startTime, endTime)
 	if err != nil {
@@ -203,9 +203,9 @@ func (s *BasicValidator) buildMetricQueries(metricName, metricNamespace string, 
 			Id: aws.String(strings.ToLower(metricName)),
 		},
 	}
-	fmt.Println("Metric information, metric query period")
+	//fmt.Println("Metric information, metric query period")
 
-	fmt.Println("Metric Information: ", metricInformation)
+	//fmt.Println("Metric Information: ", metricInformation)
 
 	fmt.Println("Maybe better form of metric query")
 	jsonBytes, err := json.MarshalIndent(metricDataQueries, "", "    ")
