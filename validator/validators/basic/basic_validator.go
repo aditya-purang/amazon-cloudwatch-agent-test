@@ -4,6 +4,7 @@
 package basic
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"strings"
@@ -205,5 +206,14 @@ func (s *BasicValidator) buildMetricQueries(metricName, metricNamespace string, 
 	fmt.Println("Metric information, metric query period")
 
 	fmt.Println("Metric Information: ", metricInformation)
+
+	fmt.Println("Maybe better form of metric query")
+	jsonBytes, err := json.MarshalIndent(metricDataQueries, "", "    ")
+	if err != nil {
+		// handle error
+		log.Fatal(err)
+	}
+	fmt.Println(string(jsonBytes))
+
 	return metricDataQueries
 }
