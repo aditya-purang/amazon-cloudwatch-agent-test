@@ -34,7 +34,7 @@
           "metrics": [
             {
               "name": "Error",
-              "unit": "Milliseconds",
+              "unit": "",
               "exponential_histogram": {
                 "dataPoints": [
                   {
@@ -87,7 +87,7 @@
             },
             {
               "name": "Fault",
-              "unit": "Milliseconds",
+              "unit": "",
               "exponential_histogram": {
                 "dataPoints": [
                   {
@@ -184,9 +184,9 @@
                     ],
                     "startTimeUnixNano": START_TIME,
                     "timeUnixNano": START_TIME,
-                    "sum": 1,
+                    "sum": 0,
                     "min": 0,
-                    "max": 2
+                    "max": 0
                   }
                 ]
               }
