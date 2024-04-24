@@ -50,7 +50,7 @@ resource "aws_eks_node_group" "this" {
   ami_type       = "AL2_x86_64"
   capacity_type  = "ON_DEMAND"
   disk_size      = 20
-  instance_types = ["trn1.2xlarge"]
+  instance_types = ["t3.medium"]
 
   depends_on = [
     aws_iam_role_policy_attachment.node_AmazonEC2ContainerRegistryReadOnly,
@@ -393,23 +393,23 @@ resource "kubernetes_daemonset" "neuron_monitor" {
                   operator = "In"
                   values   = ["linux"]
                 }
-                match_expressions {
-                  key      = "node.kubernetes.io/instance-type"
-                  operator = "In"
-                  values   = [
-                    "trn1.2xlarge",
-                    "trn1.32xlarge",
-                    "trn1n.32xlarge",
-                    "inf1.xlarge",
-                    "inf1.2xlarge",
-                    "inf1.6xlarge",
-                    "inf1.24xlarge",
-                    "inf2.xlarge",
-                    "inf2.8xlarge",
-                    "inf2.24xlarge",
-                    "inf2.48xlarge",
-                  ]
-                }
+#                 match_expressions {
+#                   key      = "node.kubernetes.io/instance-type"
+#                   operator = "In"
+#                   values   = [
+#                     "trn1.2xlarge",
+#                     "trn1.32xlarge",
+#                     "trn1n.32xlarge",
+#                     "inf1.xlarge",
+#                     "inf1.2xlarge",
+#                     "inf1.6xlarge",
+#                     "inf1.24xlarge",
+#                     "inf2.xlarge",
+#                     "inf2.8xlarge",
+#                     "inf2.24xlarge",
+#                     "inf2.48xlarge",
+#                   ]
+#                 }
               }
             }
           }
