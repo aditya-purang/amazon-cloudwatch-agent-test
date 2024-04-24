@@ -528,7 +528,7 @@ resource "kubernetes_service" "neuron_monitor_service" {
       target_port = 8000
       protocol    = "TCP"
     }
-   internalTrafficPolicy = "Local"
+   internal_traffic_policy = "Local"
   }
 }
 
