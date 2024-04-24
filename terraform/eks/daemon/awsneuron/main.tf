@@ -508,7 +508,7 @@ resource "kubernetes_service" "neuron_monitor_service" {
     kubernetes_daemonset.neuron_monitor
   ]
   metadata {
-    name      = "neuron-monitor-service "
+    name      = "neuron-monitor-service"
     namespace = "amazon-cloudwatch"
     labels = {
       "k8s-app" : "neuron-monitor-service"
