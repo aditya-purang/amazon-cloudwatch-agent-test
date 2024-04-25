@@ -9,6 +9,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
@@ -54,5 +55,12 @@ func (n *Fetcher) Fetch(namespace, metricName string, dimensions []types.Dimensi
 		listMetricInput.NextToken = nextToken
 	}
 	log.Printf("total number of metrics fetched: %v", len(metrics))
+	for _, metric := range metrics {
+		var dimensionString = strings.Builder{}
+		for _, dimension := range metric.Dimensions {
+			dimensionString.WriteString(*dimension.Name + "-")
+		}
+		log.Println(*metric.MetricName + " -> " + dimensionString.String())
+	}
 	return metrics, nil
 }
