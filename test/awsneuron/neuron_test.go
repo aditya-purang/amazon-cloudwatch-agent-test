@@ -74,6 +74,6 @@ func (suite *AwsNeuronTestSuite) AddToSuiteResult(r status.TestGroupResult) {
 	suite.Result.TestGroupResults = append(suite.Result.TestGroupResults, r)
 }
 
-func TestGPUSuite(t *testing.T) {
+func TestAWSNeuronSuite(t *testing.T) {
 	suite.Run(t, new(AwsNeuronTestSuite))
 }
