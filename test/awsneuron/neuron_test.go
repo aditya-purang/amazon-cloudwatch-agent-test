@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/suite"
 
@@ -60,6 +61,9 @@ func (suite *AwsNeuronTestSuite) TestAllInSuite() {
 	switch env.ComputeType {
 	case computetype.EKS:
 		log.Println("Environment compute type is EKS")
+		log.Println("Sleeping for 3 min - start")
+		time.Sleep(3 * time.Minute)
+		log.Println("Sleeping for 3 min - complete")
 		for _, testRunner := range getEksTestRunners(env) {
 			testRunner.Run(suite, env)
 		}
