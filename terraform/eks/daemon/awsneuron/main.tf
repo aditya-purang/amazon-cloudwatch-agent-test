@@ -254,7 +254,7 @@ resource "kubernetes_config_map" "neuron_monitor_config_map" {
   depends_on = [
     kubernetes_namespace.namespace
   ]
-  
+
   metadata {
     name      = "neuron-monitor-config-map"
     namespace = "amazon-cloudwatch"
@@ -262,11 +262,11 @@ resource "kubernetes_config_map" "neuron_monitor_config_map" {
 
   data = {
     "monitor.json" = jsonencode({
-      period           = "5s"
-      neuron_runtimes  = [
+      period = "5s"
+      neuron_runtimes = [
         {
           tag_filter : ".*"
-          metrics    = [
+          metrics = [
             {
               type = "neuroncore_counters"
             },
@@ -282,7 +282,7 @@ resource "kubernetes_config_map" "neuron_monitor_config_map" {
           ]
         }
       ]
-      system_metrics  = [
+      system_metrics = [
         {
           type = "memory_info"
         },
@@ -329,16 +329,16 @@ resource "kubernetes_role_binding" "neuron_monitor_role_binding" {
     kubernetes_namespace.namespace,
     kubernetes_service_account.neuron_monitor_service_account,
     kubernetes_role.neuron_monitor_role
-  ] 
-  
+  ]
+
   metadata {
     namespace = "amazon-cloudwatch"
     name      = "neuron-monitor-role-binding"
   }
 
   role_ref {
-    kind     = "Role"
-    name     = "neuron-monitor-role"
+    kind      = "Role"
+    name      = "neuron-monitor-role"
     api_group = "rbac.authorization.k8s.io"
   }
 
@@ -393,23 +393,23 @@ resource "kubernetes_daemonset" "neuron_monitor" {
                   operator = "In"
                   values   = ["linux"]
                 }
-#                 match_expressions {
-#                   key      = "node.kubernetes.io/instance-type"
-#                   operator = "In"
-#                   values   = [
-#                     "trn1.2xlarge",
-#                     "trn1.32xlarge",
-#                     "trn1n.32xlarge",
-#                     "inf1.xlarge",
-#                     "inf1.2xlarge",
-#                     "inf1.6xlarge",
-#                     "inf1.24xlarge",
-#                     "inf2.xlarge",
-#                     "inf2.8xlarge",
-#                     "inf2.24xlarge",
-#                     "inf2.48xlarge",
-#                   ]
-#                 }
+                #                 match_expressions {
+                #                   key      = "node.kubernetes.io/instance-type"
+                #                   operator = "In"
+                #                   values   = [
+                #                     "trn1.2xlarge",
+                #                     "trn1.32xlarge",
+                #                     "trn1n.32xlarge",
+                #                     "inf1.xlarge",
+                #                     "inf1.2xlarge",
+                #                     "inf1.6xlarge",
+                #                     "inf1.24xlarge",
+                #                     "inf2.xlarge",
+                #                     "inf2.8xlarge",
+                #                     "inf2.24xlarge",
+                #                     "inf2.48xlarge",
+                #                   ]
+                #                 }
               }
             }
           }
@@ -528,7 +528,7 @@ resource "kubernetes_service" "neuron_monitor_service" {
       target_port = 8000
       protocol    = "TCP"
     }
-   internal_traffic_policy = "Local"
+    internal_traffic_policy = "Local"
   }
 }
 
