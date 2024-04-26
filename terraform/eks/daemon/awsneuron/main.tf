@@ -250,179 +250,57 @@ resource "kubernetes_namespace" "namespace" {
   }
 }
 
-resource "kubernetes_config_map" "neuron_monitor_config_map" {
-  depends_on = [
-    kubernetes_namespace.namespace
-  ]
-
-  metadata {
-    name      = "neuron-monitor-config-map"
-    namespace = "amazon-cloudwatch"
-  }
-
-  data = {
-    "monitor.json" = jsonencode({
-      period = "5s"
-      neuron_runtimes = [
-        {
-          tag_filter : ".*"
-          metrics = [
-            {
-              type = "neuroncore_counters"
-            },
-            {
-              type = "memory_used"
-            },
-            {
-              type = "neuron_runtime_vcpu_usage"
-            },
-            {
-              type = "execution_stats"
-            }
-          ]
-        }
-      ]
-      system_metrics = [
-        {
-          type = "memory_info"
-        },
-        {
-          period = "5s"
-          type   = "neuron_hw_counters"
-        }
-      ]
-    })
-  }
-}
-
-resource "kubernetes_service_account" "neuron_monitor_service_account" {
-  depends_on = [
-    kubernetes_namespace.namespace
-  ]
-  metadata {
-    name      = "neuron-monitor-service-acct"
-    namespace = "amazon-cloudwatch"
-  }
-}
-
-resource "kubernetes_role" "neuron_monitor_role" {
+# dummy daemonset that simulates neuron-monitor assuming there is only 1 node
+resource "kubernetes_daemonset" "exporter" {
   depends_on = [
     kubernetes_namespace.namespace,
-    kubernetes_service_account.neuron_monitor_service_account,
-    kubernetes_config_map.neuron_monitor_config_map
+    kubernetes_service_account.cwagentservice,
+    aws_eks_node_group.this,
+    kubernetes_config_map.httpdconfig,
   ]
-  metadata {
-    name      = "neuron-monitor-role"
-    namespace = "amazon-cloudwatch"
-  }
-
-  rule {
-    api_groups     = [""]
-    resources      = ["configmaps"]
-    resource_names = ["neuron-monitor-config-map"]
-    verbs          = ["get"]
-  }
-}
-
-resource "kubernetes_role_binding" "neuron_monitor_role_binding" {
-  depends_on = [
-    kubernetes_namespace.namespace,
-    kubernetes_service_account.neuron_monitor_service_account,
-    kubernetes_role.neuron_monitor_role
-  ]
-
-  metadata {
-    namespace = "amazon-cloudwatch"
-    name      = "neuron-monitor-role-binding"
-  }
-
-  role_ref {
-    kind      = "Role"
-    name      = "neuron-monitor-role"
-    api_group = "rbac.authorization.k8s.io"
-  }
-
-  subject {
-    kind      = "ServiceAccount"
-    name      = "neuron-monitor-service-acct"
-    namespace = "amazon-cloudwatch"
-  }
-}
-
-resource "kubernetes_daemonset" "neuron_monitor" {
-  depends_on = [
-    kubernetes_namespace.namespace,
-    kubernetes_service_account.neuron_monitor_service_account,
-    kubernetes_role.neuron_monitor_role,
-    kubernetes_role_binding.neuron_monitor_role_binding,
-    kubernetes_config_map.neuron_monitor_config_map
-  ]
-
   metadata {
     name      = "neuron-monitor"
     namespace = "amazon-cloudwatch"
-
     labels = {
       k8s-app = "neuron-monitor"
-      version = "v1"
     }
   }
-
   spec {
     selector {
       match_labels = {
-        k8s-app = "neuron-monitor"
+        "k8s-app" = "neuron-monitor"
       }
     }
-
     template {
       metadata {
         labels = {
-          k8s-app = "neuron-monitor"
-          version = "v1"
+          "name" : "neuron-monitor"
+          "k8s-app" : "neuron-monitor"
         }
       }
-
       spec {
-        affinity {
-          node_affinity {
-            required_during_scheduling_ignored_during_execution {
-              node_selector_term {
-                match_expressions {
-                  key      = "kubernetes.io/os"
-                  operator = "In"
-                  values   = ["linux"]
-                }
-                #                 match_expressions {
-                #                   key      = "node.kubernetes.io/instance-type"
-                #                   operator = "In"
-                #                   values   = [
-                #                     "trn1.2xlarge",
-                #                     "trn1.32xlarge",
-                #                     "trn1n.32xlarge",
-                #                     "inf1.xlarge",
-                #                     "inf1.2xlarge",
-                #                     "inf1.6xlarge",
-                #                     "inf1.24xlarge",
-                #                     "inf2.xlarge",
-                #                     "inf2.8xlarge",
-                #                     "inf2.24xlarge",
-                #                     "inf2.48xlarge",
-                #                   ]
-                #                 }
-              }
+        node_selector = {
+          "kubernetes.io/os" : "linux"
+        }
+        container {
+          name  = "neuron-monitor"
+          image = "httpd:2.4-alpine"
+          resources {
+            limits = {
+              "cpu" : "50m",
+              "memory" : "50Mi"
+            }
+            requests = {
+              "cpu" : "50m",
+              "memory" : "50Mi"
             }
           }
-        }
-
-        container {
-          name  = "neuron-monitor-prometheus"
-          image = "httpd:2.4-alpine"
-
           port {
+            name           = "metrics"
             container_port = 8000
+            host_port      = 8000
+            protocol       = "TCP"
           }
-
           command = [
             "/bin/sh",
             "-c",
@@ -430,23 +308,33 @@ resource "kubernetes_daemonset" "neuron_monitor" {
           args = [
             "/bin/echo '# HELP execution_errors_total Execution errors total\n# TYPE execution_errors_total counter\nexecution_errors_total{availability_zone=\"us-west-2c\",error_type=\"generic\",instance_id=\"i-09db9b55e0095612f\",instance_name=\"\",instance_type=\"trn1.2xlarge\",region=\"us-west-2\",runtime_tag=\"367\",subnet_id=\"subnet-06a7754948e8a000f\"} 10.0\nexecution_errors_total{availability_zone=\"us-west-2c\",error_type=\"numerical\",instance_id=\"i-09db9b55e0095612f\",instance_name=\"\",instance_type=\"trn1.2xlarge\",region=\"us-west-2\",runtime_tag=\"367\",subnet_id=\"subnet-06a7754948e8a000f\"} 10.0\nexecution_errors_total{availability_zone=\"us-west-2c\",error_type=\"transient\",instance_id=\"i-09db9b55e0095612f\",instance_name=\"\",instance_type=\"trn1.2xlarge\",region=\"us-west-2\",runtime_tag=\"367\",subnet_id=\"subnet-06a7754948e8a000f\"} 10.0\nexecution_errors_total{availability_zone=\"us-west-2c\",error_type=\"model\",instance_id=\"i-09db9b55e0095612f\",instance_name=\"\",instance_type=\"trn1.2xlarge\",region=\"us-west-2\",runtime_tag=\"367\",subnet_id=\"subnet-06a7754948e8a000f\"} 10.0\nexecution_errors_total{availability_zone=\"us-west-2c\",error_type=\"runtime\",instance_id=\"i-09db9b55e0095612f\",instance_name=\"\",instance_type=\"trn1.2xlarge\",region=\"us-west-2\",runtime_tag=\"367\",subnet_id=\"subnet-06a7754948e8a000f\"} 10.0\nexecution_errors_total{availability_zone=\"us-west-2c\",error_type=\"hardware\",instance_id=\"i-09db9b55e0095612f\",instance_name=\"\",instance_type=\"trn1.2xlarge\",region=\"us-west-2\",runtime_tag=\"367\",subnet_id=\"subnet-06a7754948e8a000f\"} 10.0\n# HELP execution_status_total Execution status total\n# TYPE execution_status_total counter\nexecution_status_total{availability_zone=\"us-west-2c\",instance_id=\"i-09db9b55e0095612f\",instance_name=\"\",instance_type=\"trn1.2xlarge\",region=\"us-west-2\",runtime_tag=\"367\",status_type=\"completed\",subnet_id=\"subnet-06a7754948e8a000f\"} 10.0\nexecution_status_total{availability_zone=\"us-west-2c\",instance_id=\"i-09db9b55e0095612f\",instance_name=\"\",instance_type=\"trn1.2xlarge\",region=\"us-west-2\",runtime_tag=\"367\",status_type=\"completed_with_err\",subnet_id=\"subnet-06a7754948e8a000f\"} 10.0\nexecution_status_total{availability_zone=\"us-west-2c\",instance_id=\"i-09db9b55e0095612f\",instance_name=\"\",instance_type=\"trn1.2xlarge\",region=\"us-west-2\",runtime_tag=\"367\",status_type=\"completed_with_num_err\",subnet_id=\"subnet-06a7754948e8a000f\"} 10.0\nexecution_status_total{availability_zone=\"us-west-2c\",instance_id=\"i-09db9b55e0095612f\",instance_name=\"\",instance_type=\"trn1.2xlarge\",region=\"us-west-2\",runtime_tag=\"367\",status_type=\"timed_out\",subnet_id=\"subnet-06a7754948e8a000f\"} 10.0\nexecution_status_total{availability_zone=\"us-west-2c\",instance_id=\"i-09db9b55e0095612f\",instance_name=\"\",instance_type=\"trn1.2xlarge\",region=\"us-west-2\",runtime_tag=\"367\",status_type=\"incorrect_input\",subnet_id=\"subnet-06a7754948e8a000f\"} 10.0\nexecution_status_total{availability_zone=\"us-west-2c\",instance_id=\"i-09db9b55e0095612f\",instance_name=\"\",instance_type=\"trn1.2xlarge\",region=\"us-west-2\",runtime_tag=\"367\",status_type=\"failed_to_queue\",subnet_id=\"subnet-06a7754948e8a000f\"} 10.0\n# HELP neuron_runtime_memory_used_bytes Runtime memory used bytes\n# TYPE neuron_runtime_memory_used_bytes gauge\nneuron_runtime_memory_used_bytes{availability_zone=\"us-west-2c\",instance_id=\"i-09db9b55e0095612f\",instance_name=\"\",instance_type=\"trn1.2xlarge\",memory_location=\"host\",region=\"us-west-2\",runtime_tag=\"367\",subnet_id=\"subnet-06a7754948e8a000f\"} 7.7488128e+07\nneuron_runtime_memory_used_bytes{availability_zone=\"us-west-2c\",instance_id=\"i-09db9b55e0095612f\",instance_name=\"\",instance_type=\"trn1.2xlarge\",memory_location=\"neuron_device\",region=\"us-west-2\",runtime_tag=\"367\",subnet_id=\"subnet-06a7754948e8a000f\"} 3.4291933568e+010\n# HELP neuroncore_memory_usage_constants NeuronCore memory utilization for constants\n# TYPE neuroncore_memory_usage_constants gauge\nneuroncore_memory_usage_constants{PodName=\"pod1\",ContainerName=\"container1\",availability_zone=\"us-west-2c\",instance_id=\"i-09db9b55e0095612f\",instance_name=\"\",instance_type=\"trn1.2xlarge\",memory_location=\"None\",neuroncore=\"0\",region=\"us-west-2\",runtime_tag=\"367\",subnet_id=\"subnet-06a7754948e8a000f\"} 3.462272e+08\nneuroncore_memory_usage_constants{PodName=\"pod1\",ContainerName=\"container1\",availability_zone=\"us-west-2c\",instance_id=\"i-09db9b55e0095612f\",instance_name=\"\",instance_type=\"trn1.2xlarge\",memory_location=\"None\",neuroncore=\"1\",region=\"us-west-2\",runtime_tag=\"367\",subnet_id=\"subnet-06a7754948e8a000f\"} 3.462272e+08\n# HELP neuroncore_memory_usage_model_code NeuronCore memory utilization for model_code\n# TYPE neuroncore_memory_usage_model_code gauge\nneuroncore_memory_usage_model_code{PodName=\"pod1\",ContainerName=\"container1\",availability_zone=\"us-west-2c\",instance_id=\"i-09db9b55e0095612f\",instance_name=\"\",instance_type=\"trn1.2xlarge\",memory_location=\"None\",neuroncore=\"0\",region=\"us-west-2\",runtime_tag=\"367\",subnet_id=\"subnet-06a7754948e8a000f\"} 1.82208784e+08\nneuroncore_memory_usage_model_code{PodName=\"pod1\",ContainerName=\"container1\",availability_zone=\"us-west-2c\",instance_id=\"i-09db9b55e0095612f\",instance_name=\"\",instance_type=\"trn1.2xlarge\",memory_location=\"None\",neuroncore=\"1\",region=\"us-west-2\",runtime_tag=\"367\",subnet_id=\"subnet-06a7754948e8a000f\"} 1.82208784e+08\n# HELP neuroncore_memory_usage_model_shared_scratchpad NeuronCore memory utilization for model_shared_scratchpad\n# TYPE neuroncore_memory_usage_model_shared_scratchpad gauge\nneuroncore_memory_usage_model_shared_scratchpad{PodName=\"pod1\",ContainerName=\"container1\",availability_zone=\"us-west-2c\",instance_id=\"i-09db9b55e0095612f\",instance_name=\"\",instance_type=\"trn1.2xlarge\",memory_location=\"None\",neuroncore=\"0\",region=\"us-west-2\",runtime_tag=\"367\",subnet_id=\"subnet-06a7754948e8a000f\"} 5.36870912e+08\nneuroncore_memory_usage_model_shared_scratchpad{PodName=\"pod1\",ContainerName=\"container1\",availability_zone=\"us-west-2c\",instance_id=\"i-09db9b55e0095612f\",instance_name=\"\",instance_type=\"trn1.2xlarge\",memory_location=\"None\",neuroncore=\"1\",region=\"us-west-2\",runtime_tag=\"367\",subnet_id=\"subnet-06a7754948e8a000f\"} 5.36870912e+08\n# HELP neuroncore_memory_usage_runtime_memory NeuronCore memory utilization for runtime_memory\n# TYPE neuroncore_memory_usage_runtime_memory gauge\nneuroncore_memory_usage_runtime_memory{PodName=\"pod1\",ContainerName=\"container1\",availability_zone=\"us-west-2c\",instance_id=\"i-09db9b55e0095612f\",instance_name=\"\",instance_type=\"trn1.2xlarge\",memory_location=\"None\",neuroncore=\"0\",region=\"us-west-2\",runtime_tag=\"367\",subnet_id=\"subnet-06a7754948e8a000f\"} 10.0\nneuroncore_memory_usage_runtime_memory{PodName=\"pod1\",ContainerName=\"container1\",availability_zone=\"us-west-2c\",instance_id=\"i-09db9b55e0095612f\",instance_name=\"\",instance_type=\"trn1.2xlarge\",memory_location=\"None\",neuroncore=\"1\",region=\"us-west-2\",runtime_tag=\"367\",subnet_id=\"subnet-06a7754948e8a000f\"} 10.0\n# HELP neuroncore_memory_usage_tensors NeuronCore memory utilization for tensors\n# TYPE neuroncore_memory_usage_tensors gauge\nneuroncore_memory_usage_tensors{PodName=\"pod1\",ContainerName=\"container1\",availability_zone=\"us-west-2c\",instance_id=\"i-09db9b55e0095612f\",instance_name=\"\",instance_type=\"trn1.2xlarge\",memory_location=\"None\",neuroncore=\"0\",region=\"us-west-2\",runtime_tag=\"367\",subnet_id=\"subnet-06a7754948e8a000f\"} 6.315872e+06\nneuroncore_memory_usage_tensors{PodName=\"pod1\",ContainerName=\"container1\",availability_zone=\"us-west-2c\",instance_id=\"i-09db9b55e0095612f\",instance_name=\"\",instance_type=\"trn1.2xlarge\",memory_location=\"None\",neuroncore=\"1\",region=\"us-west-2\",runtime_tag=\"367\",subnet_id=\"subnet-06a7754948e8a000f\"} 6.315872e+06\n# HELP neuroncore_utilization_ratio NeuronCore utilization ratio\n# TYPE neuroncore_utilization_ratio gauge\nneuroncore_utilization_ratio{PodName=\"pod1\",ContainerName=\"container1\",availability_zone=\"us-west-2c\",instance_id=\"i-09db9b55e0095612f\",instance_name=\"\",instance_type=\"trn1.2xlarge\",neuroncore=\"0\",region=\"us-west-2\",runtime_tag=\"367\",subnet_id=\"subnet-06a7754948e8a000f\"} 10.0\nneuroncore_utilization_ratio{PodName=\"pod1\",ContainerName=\"container1\",availability_zone=\"us-west-2c\",instance_id=\"i-09db9b55e0095612f\",instance_name=\"\",instance_type=\"trn1.2xlarge\",neuroncore=\"1\",region=\"us-west-2\",runtime_tag=\"367\",subnet_id=\"subnet-06a7754948e8a000f\"} 10.0\n# HELP instance_info EC2 instance information\n# TYPE instance_info gauge\ninstance_info{availability_zone=\"us-west-2c\",instance_id=\"i-09db9b55e0095612f\",instance_name=\"\",instance_type=\"trn1.2xlarge\",region=\"us-west-2\",subnet_id=\"subnet-06a7754948e8a000f\"} 1.0\n# HELP neuron_hardware_info Neuron Hardware Information\n# TYPE neuron_hardware_info gauge\nneuron_hardware_info{availability_zone=\"us-west-2c\",instance_id=\"i-09db9b55e0095612f\",instance_name=\"\",instance_type=\"trn1.2xlarge\",neuron_device_count=\"1\",neuroncore_per_device_count=\"2\",region=\"us-west-2\",subnet_id=\"subnet-06a7754948e8a000f\"} 1.0' >> /usr/local/apache2/htdocs/metrics && httpd-foreground -k restart"
           ]
-          resources {
-            limits = {
-              cpu    = "500m"
-              memory = "256Mi"
-            }
-            requests = {
-              cpu    = "256m"
-              memory = "128Mi"
-            }
+          volume_mount {
+            mount_path = "/etc/amazon-cloudwatch-observability-neuron-cert"
+            name       = "neurontls"
+            read_only  = true
           }
-
-          security_context {
-            privileged = true
+          volume_mount {
+            mount_path = "/usr/local/apache2/conf/httpd.conf"
+            sub_path   = "httpd.conf"
+            name       = "httpdconfig"
+            read_only  = true
           }
-
+          volume_mount {
+            mount_path = "/usr/local/apache2/conf/extra/httpd-ssl.conf"
+            sub_path   = "httpd-ssl.conf"
+            name       = "httpdconfig"
+            read_only  = true
+          }
           env {
-            name = "NODE_NAME"
+            name = "HOST_IP"
+            value_from {
+              field_ref {
+                field_path = "status.hostIP"
+              }
+            }
+          }
+          env {
+            name = "HOST_NAME"
             value_from {
               field_ref {
                 field_path = "spec.nodeName"
@@ -454,28 +342,18 @@ resource "kubernetes_daemonset" "neuron_monitor" {
             }
           }
           env {
-            name  = "PATH"
-            value = "/usr/local/bin:/usr/bin:/bin:/opt/aws/neuron/bin"
-          }
-
-          volume_mount {
-            mount_path = "/etc/amazon-cloudwatch-observability-neuron-cert/"
-            name       = "neurontls"
-            read_only  = true
-          }
-          volume_mount {
-            mount_path = "/etc/neuron-monitor-config/"
-            name       = "neuron-monitor-config"
-            read_only  = true
+            name = "K8S_NAMESPACE"
+            value_from {
+              field_ref {
+                field_path = "metadata.namespace"
+              }
+            }
           }
         }
-
         volume {
           name = "neurontls"
-
           secret {
             secret_name = "amazon-cloudwatch-observability-agent-cert"
-
             items {
               key  = "tls.crt"
               path = "server.crt"
@@ -487,25 +365,24 @@ resource "kubernetes_daemonset" "neuron_monitor" {
           }
         }
         volume {
-          name = "neuron-monitor-config"
-
+          name = "httpdconfig"
           config_map {
-            name = "neuron-monitor-config-map"
+            name = "httpdconfig"
           }
         }
-
-        service_account_name = "neuron-monitor-service-acct"
+        service_account_name             = "cloudwatch-agent"
+        termination_grace_period_seconds = 60
       }
     }
   }
 }
 
-resource "kubernetes_service" "neuron_monitor_service" {
+resource "kubernetes_service" "exporter" {
   depends_on = [
     kubernetes_namespace.namespace,
     kubernetes_service_account.cwagentservice,
     aws_eks_node_group.this,
-    kubernetes_daemonset.neuron_monitor
+    kubernetes_daemonset.exporter
   ]
   metadata {
     name      = "neuron-monitor-service"
@@ -528,7 +405,6 @@ resource "kubernetes_service" "neuron_monitor_service" {
       target_port = 8000
       protocol    = "TCP"
     }
-    internal_traffic_policy = "Local"
   }
 }
 
@@ -537,7 +413,7 @@ resource "kubernetes_daemonset" "service" {
     kubernetes_namespace.namespace,
     kubernetes_service_account.cwagentservice,
     aws_eks_node_group.this,
-    kubernetes_daemonset.neuron_monitor
+    kubernetes_service.exporter
   ]
   metadata {
     name      = "cloudwatch-agent"
@@ -806,12 +682,6 @@ resource "kubernetes_cluster_role" "clusterrole" {
   rule {
     verbs          = ["get", "update"]
     resource_names = ["cwagent-clusterleader"]
-    resources      = ["configmaps"]
-    api_groups     = [""]
-  }
-  rule {
-    verbs          = ["get"]
-    resource_names = ["neuron-monitor-config-map"]
     resources      = ["configmaps"]
     api_groups     = [""]
   }
