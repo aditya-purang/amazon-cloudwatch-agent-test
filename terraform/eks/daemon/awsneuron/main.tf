@@ -18,7 +18,7 @@ data "aws_eks_cluster_auth" "this" {
 }
 
 resource "aws_eks_cluster" "this" {
-  name     = "cwagent-eks-integ-neuron-2"
+  name     = "cwagent-eks-integ-neuron-3"
   role_arn = module.basic_components.role_arn
   version  = var.k8s_version
   enabled_cluster_log_types = [
