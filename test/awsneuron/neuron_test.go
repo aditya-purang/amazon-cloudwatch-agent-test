@@ -7,11 +7,9 @@ package emf
 
 import (
 	"fmt"
+	"github.com/stretchr/testify/suite"
 	"log"
 	"testing"
-	"time"
-
-	"github.com/stretchr/testify/suite"
 
 	"github.com/aws/amazon-cloudwatch-agent-test/environment"
 	"github.com/aws/amazon-cloudwatch-agent-test/environment/computetype"
@@ -61,9 +59,6 @@ func (suite *AwsNeuronTestSuite) TestAllInSuite() {
 	switch env.ComputeType {
 	case computetype.EKS:
 		log.Println("Environment compute type is EKS")
-		log.Println("Sleeping for 10 min - start")
-		time.Sleep(10 * time.Minute)
-		log.Println("Sleeping for 10 min - complete")
 		for _, testRunner := range getEksTestRunners(env) {
 			testRunner.Run(suite, env)
 		}
