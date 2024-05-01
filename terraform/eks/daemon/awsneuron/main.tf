@@ -18,7 +18,7 @@ data "aws_eks_cluster_auth" "this" {
 }
 
 resource "aws_eks_cluster" "this" {
-  name     = "cwagent-eks-integ-neuron-5"
+  name     = "cwagent-eks-integ-neuron-6"
   role_arn = module.basic_components.role_arn
   version  = var.k8s_version
   enabled_cluster_log_types = [
@@ -250,89 +250,175 @@ resource "kubernetes_namespace" "namespace" {
   }
 }
 
-# dummy daemonset that simulates neuron-monitor assuming there is only 1 node
-resource "kubernetes_daemonset" "exporter" {
+resource "kubernetes_config_map" "neuron_monitor_config_map" {
+  depends_on = [
+    kubernetes_namespace.namespace
+  ]
+
+  metadata {
+    name      = "neuron-monitor-config-map"
+    namespace = "amazon-cloudwatch"
+  }
+
+  data = {
+    "monitor.json" = jsonencode({
+      period = "5s"
+      neuron_runtimes = [
+        {
+          tag_filter : ".*"
+          metrics = [
+            {
+              type = "neuroncore_counters"
+            },
+            {
+              type = "memory_used"
+            },
+            {
+              type = "neuron_runtime_vcpu_usage"
+            },
+            {
+              type = "execution_stats"
+            }
+          ]
+        }
+      ]
+      system_metrics = [
+        {
+          type = "memory_info"
+        },
+        {
+          period = "5s"
+          type   = "neuron_hw_counters"
+        }
+      ]
+    })
+  }
+}
+
+resource "kubernetes_service_account" "neuron_monitor_service_account" {
+  depends_on = [
+    kubernetes_namespace.namespace
+  ]
+  metadata {
+    name      = "neuron-monitor-service-acct"
+    namespace = "amazon-cloudwatch"
+  }
+}
+
+resource "kubernetes_role" "neuron_monitor_role" {
   depends_on = [
     kubernetes_namespace.namespace,
-    kubernetes_service_account.cwagentservice,
-    aws_eks_node_group.this,
-    kubernetes_config_map.httpdconfig,
+    kubernetes_service_account.neuron_monitor_service_account,
+    kubernetes_config_map.neuron_monitor_config_map
   ]
+  metadata {
+    name      = "neuron-monitor-role"
+    namespace = "amazon-cloudwatch"
+  }
+
+  rule {
+    api_groups     = [""]
+    resources      = ["configmaps"]
+    resource_names = ["neuron-monitor-config-map"]
+    verbs          = ["get"]
+  }
+}
+
+resource "kubernetes_role_binding" "neuron_monitor_role_binding" {
+  depends_on = [
+    kubernetes_namespace.namespace,
+    kubernetes_service_account.neuron_monitor_service_account,
+    kubernetes_role.neuron_monitor_role
+  ]
+
+  metadata {
+    namespace = "amazon-cloudwatch"
+    name      = "neuron-monitor-role-binding"
+  }
+
+  role_ref {
+    kind      = "Role"
+    name      = "neuron-monitor-role"
+    api_group = "rbac.authorization.k8s.io"
+  }
+
+  subject {
+    kind      = "ServiceAccount"
+    name      = "neuron-monitor-service-acct"
+    namespace = "amazon-cloudwatch"
+  }
+}
+
+resource "kubernetes_daemonset" "neuron_monitor" {
+  depends_on = [
+    kubernetes_namespace.namespace,
+    kubernetes_service_account.neuron_monitor_service_account,
+    kubernetes_role.neuron_monitor_role,
+    kubernetes_role_binding.neuron_monitor_role_binding,
+    kubernetes_config_map.neuron_monitor_config_map
+  ]
+
   metadata {
     name      = "neuron-monitor"
     namespace = "amazon-cloudwatch"
     labels = {
       k8s-app = "neuron-monitor"
+      version = "v1"
     }
   }
   spec {
     selector {
       match_labels = {
-        "k8s-app" = "neuron-monitor"
+        k8s-app = "neuron-monitor"
       }
     }
     template {
       metadata {
         labels = {
-          "name" : "neuron-monitor"
-          "k8s-app" : "neuron-monitor"
+          k8s-app = "neuron-monitor"
+          version = "v1"
         }
       }
       spec {
-        node_selector = {
-          "kubernetes.io/os" : "linux"
-        }
-        container {
-          name  = "neuron-monitor"
-          image = "506463145083.dkr.ecr.us-west-2.amazonaws.com/mocked-neuron-monitor:latest"
-          resources {
-            limits = {
-              "cpu" : "500m",
-              "memory" : "150Mi"
-            }
-            requests = {
-              "cpu" : "250m",
-              "memory" : "75Mi"
+        affinity {
+          node_affinity {
+            required_during_scheduling_ignored_during_execution {
+              node_selector_term {
+                match_expressions {
+                  key      = "kubernetes.io/os"
+                  operator = "In"
+                  values   = ["linux"]
+                }
+              }
             }
           }
+        }
+        container {
+          name  = "neuron-monitor-prometheus"
+          image = "506463145083.dkr.ecr.us-west-2.amazonaws.com/mocked-neuron-monitor:latest"
           port {
-            name           = "metrics"
             container_port = 8000
-            host_port      = 8000
-            protocol       = "TCP"
           }
           command = [
             "/bin/sh",
             "-c",
             "/opt/aws/neuron/bin/dummy_neuron_monitor.py --port 8000 --cert-file /etc/amazon-cloudwatch-observability-neuron-cert/server.crt --key-file /etc/amazon-cloudwatch-observability-neuron-cert/server.key"
           ]
-          volume_mount {
-            mount_path = "/etc/amazon-cloudwatch-observability-neuron-cert"
-            name       = "neurontls"
-            read_only  = true
-          }
-          volume_mount {
-            mount_path = "/usr/local/apache2/conf/httpd.conf"
-            sub_path   = "httpd.conf"
-            name       = "httpdconfig"
-            read_only  = true
-          }
-          volume_mount {
-            mount_path = "/usr/local/apache2/conf/extra/httpd-ssl.conf"
-            sub_path   = "httpd-ssl.conf"
-            name       = "httpdconfig"
-            read_only  = true
-          }
-          env {
-            name = "HOST_IP"
-            value_from {
-              field_ref {
-                field_path = "status.hostIP"
-              }
+          resources {
+            limits = {
+              cpu    = "500m"
+              memory = "256Mi"
+            }
+            requests = {
+              cpu    = "256m"
+              memory = "128Mi"
             }
           }
+          security_context {
+            privileged = true
+          }
           env {
-            name = "HOST_NAME"
+            name = "NODE_NAME"
             value_from {
               field_ref {
                 field_path = "spec.nodeName"
@@ -340,12 +426,18 @@ resource "kubernetes_daemonset" "exporter" {
             }
           }
           env {
-            name = "K8S_NAMESPACE"
-            value_from {
-              field_ref {
-                field_path = "metadata.namespace"
-              }
-            }
+            name  = "PATH"
+            value = "/usr/local/bin:/usr/bin:/bin:/opt/aws/neuron/bin"
+          }
+          volume_mount {
+            mount_path = "/etc/amazon-cloudwatch-observability-neuron-cert/"
+            name       = "neurontls"
+            read_only  = true
+          }
+          volume_mount {
+            mount_path = "/etc/neuron-monitor-config/"
+            name       = "neuron-monitor-config"
+            read_only  = true
           }
         }
         volume {
@@ -363,24 +455,23 @@ resource "kubernetes_daemonset" "exporter" {
           }
         }
         volume {
-          name = "httpdconfig"
+          name = "neuron-monitor-config"
           config_map {
-            name = "httpdconfig"
+            name = "neuron-monitor-config-map"
           }
         }
-        service_account_name             = "cloudwatch-agent"
-        termination_grace_period_seconds = 60
+        service_account_name = "neuron-monitor-service-acct"
       }
     }
   }
 }
 
-resource "kubernetes_service" "exporter" {
+resource "kubernetes_service" "neuron_monitor_service" {
   depends_on = [
     kubernetes_namespace.namespace,
     kubernetes_service_account.cwagentservice,
     aws_eks_node_group.this,
-    kubernetes_daemonset.exporter
+    kubernetes_daemonset.neuron_monitor
   ]
   metadata {
     name      = "neuron-monitor-service"
@@ -403,6 +494,7 @@ resource "kubernetes_service" "exporter" {
       target_port = 8000
       protocol    = "TCP"
     }
+    internal_traffic_policy = "Local"
   }
 }
 
@@ -411,7 +503,7 @@ resource "kubernetes_daemonset" "service" {
     kubernetes_namespace.namespace,
     kubernetes_service_account.cwagentservice,
     aws_eks_node_group.this,
-    kubernetes_service.exporter
+    kubernetes_daemonset.neuron_monitor
   ]
   metadata {
     name      = "cloudwatch-agent"
@@ -680,6 +772,12 @@ resource "kubernetes_cluster_role" "clusterrole" {
   rule {
     verbs          = ["get", "update"]
     resource_names = ["cwagent-clusterleader"]
+    resources      = ["configmaps"]
+    api_groups     = [""]
+  }
+  rule {
+    verbs          = ["get"]
+    resource_names = ["neuron-monitor-config-map"]
     resources      = ["configmaps"]
     api_groups     = [""]
   }
