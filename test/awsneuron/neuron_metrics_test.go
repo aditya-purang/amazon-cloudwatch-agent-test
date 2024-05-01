@@ -21,24 +21,24 @@ const (
 
 var expectedDimsToMetrics = map[string][]string{
 	"ClusterName": {
-		ContainerNeuronCoreUtil, ContainerNeuronCoreMemUsageConstants, ContainerNeuronCoreMemUsageModel, ContainerNeuronCoreMemUsageScratchpad,
-		ContainerNeuronCoreMemUsageRuntime, ContainerNeuronCoreMemUsageTensors, ContainerNeuronCoreMemUsageTotal, ContainerNeuronDeviceHwEccEvents,
-
-		PodNeuronCoreUtil, PodNeuronCoreMemUsageConstants, PodNeuronCoreMemUsageModel, PodNeuronCoreMemUsageScratchpad,
-		PodNeuronCoreMemUsageRuntime, PodNeuronCoreMemUsageTensors, PodNeuronCoreMemUsageTotal, PodNeuronDeviceHwEccEvents,
+		//ContainerNeuronCoreUtil, ContainerNeuronCoreMemUsageConstants, ContainerNeuronCoreMemUsageModel, ContainerNeuronCoreMemUsageScratchpad,
+		//ContainerNeuronCoreMemUsageRuntime, ContainerNeuronCoreMemUsageTensors, ContainerNeuronCoreMemUsageTotal, ContainerNeuronDeviceHwEccEvents,
+		//
+		//PodNeuronCoreUtil, PodNeuronCoreMemUsageConstants, PodNeuronCoreMemUsageModel, PodNeuronCoreMemUsageScratchpad,
+		//PodNeuronCoreMemUsageRuntime, PodNeuronCoreMemUsageTensors, PodNeuronCoreMemUsageTotal, PodNeuronDeviceHwEccEvents,
 
 		NodeNeuronCoreUtil, NodeNeuronCoreMemUsageConstants, NodeNeuronCoreMemUsageModel, NodeNeuronCoreMemUsageScratchpad,
 		NodeNeuronCoreMemUsageRuntime, NodeNeuronCoreMemUsageTensors, NodeNeuronCoreMemUsageTotal, NodeNeuronDeviceHwEccEvents,
 		NodeExecutionErrorsTotal, NodeNeuronDeviceRuntimeMemoryUsed, NodeNeuronExecutionLatency,
 	},
-	"ClusterName-Namespace": {
-		PodNeuronCoreUtil, PodNeuronCoreMemUsageConstants, PodNeuronCoreMemUsageModel, PodNeuronCoreMemUsageScratchpad,
-		PodNeuronCoreMemUsageRuntime, PodNeuronCoreMemUsageTensors, PodNeuronCoreMemUsageTotal, PodNeuronDeviceHwEccEvents,
-	},
-	"ClusterName-Namespace-Service": {
-		PodNeuronCoreUtil, PodNeuronCoreMemUsageConstants, PodNeuronCoreMemUsageModel, PodNeuronCoreMemUsageScratchpad,
-		PodNeuronCoreMemUsageRuntime, PodNeuronCoreMemUsageTensors, PodNeuronCoreMemUsageTotal, PodNeuronDeviceHwEccEvents,
-	},
+	//"ClusterName-Namespace": {
+	//	PodNeuronCoreUtil, PodNeuronCoreMemUsageConstants, PodNeuronCoreMemUsageModel, PodNeuronCoreMemUsageScratchpad,
+	//	PodNeuronCoreMemUsageRuntime, PodNeuronCoreMemUsageTensors, PodNeuronCoreMemUsageTotal, PodNeuronDeviceHwEccEvents,
+	//},
+	//"ClusterName-Namespace-Service": {
+	//	PodNeuronCoreUtil, PodNeuronCoreMemUsageConstants, PodNeuronCoreMemUsageModel, PodNeuronCoreMemUsageScratchpad,
+	//	PodNeuronCoreMemUsageRuntime, PodNeuronCoreMemUsageTensors, PodNeuronCoreMemUsageTotal, PodNeuronDeviceHwEccEvents,
+	//},
 	//"ClusterName-Namespace-PodName": {
 	//	PodNeuronCoreUtil, PodNeuronCoreMemUsageConstants, PodNeuronCoreMemUsageModel, PodNeuronCoreMemUsageScratchpad,
 	//	PodNeuronCoreMemUsageRuntime, PodNeuronCoreMemUsageTensors, PodNeuronCoreMemUsageTotal, PodNeuronDeviceHwEccEvents,
