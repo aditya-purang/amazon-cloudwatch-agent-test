@@ -21,71 +21,52 @@ const (
 
 var expectedDimsToMetrics = map[string][]string{
 	"ClusterName": {
-		ContainerNeuronCoreUtil, ContainerNeuronCoreMemUsageConstants, ContainerNeuronCoreMemUsageModel, ContainerNeuronCoreMemUsageScratchpad,
-		ContainerNeuronCoreMemUsageRuntime, ContainerNeuronCoreMemUsageTensors, ContainerNeuronCoreMemUsageTotal, ContainerNeuronDeviceHwEccEvents,
+		ContainerNeuronCoreUtil, ContainerNeuronCoreMemUsageTotal, ContainerNeuronDeviceHwEccEvents,
 
-		PodNeuronCoreUtil, PodNeuronCoreMemUsageConstants, PodNeuronCoreMemUsageModel, PodNeuronCoreMemUsageScratchpad,
-		PodNeuronCoreMemUsageRuntime, PodNeuronCoreMemUsageTensors, PodNeuronCoreMemUsageTotal, PodNeuronDeviceHwEccEvents,
+		PodNeuronCoreUtil, PodNeuronCoreMemUsageTotal, PodNeuronDeviceHwEccEvents,
 
-		NodeNeuronCoreUtil, NodeNeuronCoreMemUsageConstants, NodeNeuronCoreMemUsageModel, NodeNeuronCoreMemUsageScratchpad,
-		NodeNeuronCoreMemUsageRuntime, NodeNeuronCoreMemUsageTensors, NodeNeuronCoreMemUsageTotal, NodeNeuronDeviceHwEccEvents,
-		NodeExecutionErrorsTotal, NodeExecutionErrorsGeneric, NodeExecutionErrorsNumerical, NodeExecutionErrorsTransient,
-		NodeExecutionErrorsModel, NodeExecutionErrorsRuntime, NodeExecutionErrorsHardware, NodeExecutionStatusCompleted,
-		NodeExecutionStatusTimedOut, NodeExecutionStatusCompletedWithErr, NodeExecutionStatusCompletedWithNumErr, NodeExecutionStatusIncorrectInput,
-		NodeExecutionStatusFailedToQueue, NodeNeuronDeviceRuntimeMemoryUsed, NodeNeuronExecutionLatency,
+		NodeNeuronCoreUtil, NodeNeuronCoreMemUsageTotal, NodeNeuronDeviceHwEccEvents,
+		NodeExecutionErrorsTotal, NodeNeuronDeviceRuntimeMemoryUsed, NodeNeuronExecutionLatency,
 	},
 	"ClusterName-Namespace": {
-		PodNeuronCoreUtil, PodNeuronCoreMemUsageConstants, PodNeuronCoreMemUsageModel, PodNeuronCoreMemUsageScratchpad,
-		PodNeuronCoreMemUsageRuntime, PodNeuronCoreMemUsageTensors, PodNeuronCoreMemUsageTotal, PodNeuronDeviceHwEccEvents,
+		PodNeuronCoreUtil, PodNeuronCoreMemUsageTotal, PodNeuronDeviceHwEccEvents,
 	},
 	"ClusterName-Namespace-Service": {
-		PodNeuronCoreUtil, PodNeuronCoreMemUsageConstants, PodNeuronCoreMemUsageModel, PodNeuronCoreMemUsageScratchpad,
-		PodNeuronCoreMemUsageRuntime, PodNeuronCoreMemUsageTensors, PodNeuronCoreMemUsageTotal, PodNeuronDeviceHwEccEvents,
+		PodNeuronCoreUtil, PodNeuronCoreMemUsageTotal, PodNeuronDeviceHwEccEvents,
 	},
 	"ClusterName-Namespace-PodName": {
-		PodNeuronCoreUtil, PodNeuronCoreMemUsageConstants, PodNeuronCoreMemUsageModel, PodNeuronCoreMemUsageScratchpad,
-		PodNeuronCoreMemUsageRuntime, PodNeuronCoreMemUsageTensors, PodNeuronCoreMemUsageTotal, PodNeuronDeviceHwEccEvents,
+		PodNeuronCoreUtil, PodNeuronCoreMemUsageTotal, PodNeuronDeviceHwEccEvents,
 	},
 	"ClusterName-InstanceId-NodeName": {
-		NodeNeuronCoreUtil, NodeNeuronCoreMemUsageConstants, NodeNeuronCoreMemUsageModel, NodeNeuronCoreMemUsageScratchpad,
-		NodeNeuronCoreMemUsageRuntime, NodeNeuronCoreMemUsageTensors, NodeNeuronCoreMemUsageTotal, NodeNeuronDeviceHwEccEvents,
-		NodeExecutionErrorsTotal, NodeExecutionErrorsGeneric, NodeExecutionErrorsNumerical, NodeExecutionErrorsTransient,
-		NodeExecutionErrorsModel, NodeExecutionErrorsRuntime, NodeExecutionErrorsHardware, NodeExecutionStatusCompleted,
-		NodeExecutionStatusTimedOut, NodeExecutionStatusCompletedWithErr, NodeExecutionStatusCompletedWithNumErr, NodeExecutionStatusIncorrectInput,
-		NodeExecutionStatusFailedToQueue, NodeNeuronDeviceRuntimeMemoryUsed, NodeNeuronExecutionLatency,
+		NodeNeuronCoreUtil, NodeNeuronCoreMemUsageTotal, NodeNeuronDeviceHwEccEvents,
+		NodeExecutionErrorsTotal, NodeNeuronDeviceRuntimeMemoryUsed, NodeNeuronExecutionLatency,
 	},
 	"ClusterName-Namespace-PodName-FullPodName": {
-		PodNeuronCoreUtil, PodNeuronCoreMemUsageConstants, PodNeuronCoreMemUsageModel, PodNeuronCoreMemUsageScratchpad,
-		PodNeuronCoreMemUsageRuntime, PodNeuronCoreMemUsageTensors, PodNeuronCoreMemUsageTotal, PodNeuronDeviceHwEccEvents,
+		PodNeuronCoreUtil, PodNeuronCoreMemUsageTotal, PodNeuronDeviceHwEccEvents,
 	},
 	"ClusterName-Namespace-PodName-ContainerName": {
-		ContainerNeuronCoreUtil, ContainerNeuronCoreMemUsageConstants, ContainerNeuronCoreMemUsageModel, ContainerNeuronCoreMemUsageScratchpad,
-		ContainerNeuronCoreMemUsageRuntime, ContainerNeuronCoreMemUsageTensors, ContainerNeuronCoreMemUsageTotal, ContainerNeuronDeviceHwEccEvents,
+		ContainerNeuronCoreUtil, ContainerNeuronCoreMemUsageTotal, ContainerNeuronDeviceHwEccEvents,
 	},
 	"ClusterName-InstanceId-NodeName-NeuronDevice": {
 		NodeNeuronDeviceHwEccEvents,
 	},
 	"ClusterName-Namespace-PodName-FullPodName-ContainerName": {
-		ContainerNeuronCoreUtil, ContainerNeuronCoreMemUsageConstants, ContainerNeuronCoreMemUsageModel, ContainerNeuronCoreMemUsageScratchpad,
-		ContainerNeuronCoreMemUsageRuntime, ContainerNeuronCoreMemUsageTensors, ContainerNeuronCoreMemUsageTotal, ContainerNeuronDeviceHwEccEvents,
+		ContainerNeuronCoreUtil, ContainerNeuronCoreMemUsageTotal, ContainerNeuronDeviceHwEccEvents,
 	},
 	"ClusterName-Namespace-PodName-FullPodName-NeuronDevice": {
 		PodNeuronDeviceHwEccEvents,
 	},
 	"ClusterName-Namespace-PodName-FullPodName-NeuronDevice-NeuronCore": {
-		PodNeuronCoreUtil, PodNeuronCoreMemUsageConstants, PodNeuronCoreMemUsageModel, PodNeuronCoreMemUsageScratchpad,
-		PodNeuronCoreMemUsageRuntime, PodNeuronCoreMemUsageTensors, PodNeuronCoreMemUsageTotal,
+		PodNeuronCoreUtil, PodNeuronCoreMemUsageTotal,
 	},
 	"ClusterName-InstanceId-NodeName-NeuronDevice-NeuronCore-InstanceType": {
-		NodeNeuronCoreUtil, NodeNeuronCoreMemUsageConstants, NodeNeuronCoreMemUsageModel, NodeNeuronCoreMemUsageScratchpad,
-		NodeNeuronCoreMemUsageRuntime, NodeNeuronCoreMemUsageTensors, NodeNeuronCoreMemUsageTotal,
+		NodeNeuronCoreUtil, NodeNeuronCoreMemUsageTotal,
 	},
 	"ClusterName-Namespace-PodName-FullPodName-ContainerName-NeuronDevice": {
 		ContainerNeuronDeviceHwEccEvents,
 	},
 	"ClusterName-Namespace-PodName-FullPodName-ContainerName-NeuronDevice-NeuronCore": {
-		ContainerNeuronCoreUtil, ContainerNeuronCoreMemUsageConstants, ContainerNeuronCoreMemUsageModel, ContainerNeuronCoreMemUsageScratchpad,
-		ContainerNeuronCoreMemUsageRuntime, ContainerNeuronCoreMemUsageTensors, ContainerNeuronCoreMemUsageTotal,
+		ContainerNeuronCoreUtil, ContainerNeuronCoreMemUsageTotal,
 	},
 }
 
