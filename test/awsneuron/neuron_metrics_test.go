@@ -21,52 +21,65 @@ const (
 
 var expectedDimsToMetrics = map[string][]string{
 	"ClusterName": {
-		ContainerNeuronCoreUtil, ContainerNeuronCoreMemUsageTotal, ContainerNeuronDeviceHwEccEvents,
+		ContainerNeuronCoreUtil, ContainerNeuronCoreMemUsageConstants, ContainerNeuronCoreMemUsageModel, ContainerNeuronCoreMemUsageScratchpad,
+		ContainerNeuronCoreMemUsageRuntime, ContainerNeuronCoreMemUsageTensors, ContainerNeuronCoreMemUsageTotal, ContainerNeuronDeviceHwEccEvents,
 
-		PodNeuronCoreUtil, PodNeuronCoreMemUsageTotal, PodNeuronDeviceHwEccEvents,
+		PodNeuronCoreUtil, PodNeuronCoreMemUsageConstants, PodNeuronCoreMemUsageModel, PodNeuronCoreMemUsageScratchpad,
+		PodNeuronCoreMemUsageRuntime, PodNeuronCoreMemUsageTensors, PodNeuronCoreMemUsageTotal, PodNeuronDeviceHwEccEvents,
 
-		NodeNeuronCoreUtil, NodeNeuronCoreMemUsageTotal, NodeNeuronDeviceHwEccEvents,
+		NodeNeuronCoreUtil, NodeNeuronCoreMemUsageConstants, NodeNeuronCoreMemUsageModel, NodeNeuronCoreMemUsageScratchpad,
+		NodeNeuronCoreMemUsageRuntime, NodeNeuronCoreMemUsageTensors, NodeNeuronCoreMemUsageTotal, NodeNeuronDeviceHwEccEvents,
 		NodeExecutionErrorsTotal, NodeNeuronDeviceRuntimeMemoryUsed, NodeNeuronExecutionLatency,
 	},
 	"ClusterName-Namespace": {
-		PodNeuronCoreUtil, PodNeuronCoreMemUsageTotal, PodNeuronDeviceHwEccEvents,
+		PodNeuronCoreUtil, PodNeuronCoreMemUsageConstants, PodNeuronCoreMemUsageModel, PodNeuronCoreMemUsageScratchpad,
+		PodNeuronCoreMemUsageRuntime, PodNeuronCoreMemUsageTensors, PodNeuronCoreMemUsageTotal, PodNeuronDeviceHwEccEvents,
 	},
 	"ClusterName-Namespace-Service": {
-		PodNeuronCoreUtil, PodNeuronCoreMemUsageTotal, PodNeuronDeviceHwEccEvents,
+		PodNeuronCoreUtil, PodNeuronCoreMemUsageConstants, PodNeuronCoreMemUsageModel, PodNeuronCoreMemUsageScratchpad,
+		PodNeuronCoreMemUsageRuntime, PodNeuronCoreMemUsageTensors, PodNeuronCoreMemUsageTotal, PodNeuronDeviceHwEccEvents,
 	},
 	"ClusterName-Namespace-PodName": {
-		PodNeuronCoreUtil, PodNeuronCoreMemUsageTotal, PodNeuronDeviceHwEccEvents,
+		PodNeuronCoreUtil, PodNeuronCoreMemUsageConstants, PodNeuronCoreMemUsageModel, PodNeuronCoreMemUsageScratchpad,
+		PodNeuronCoreMemUsageRuntime, PodNeuronCoreMemUsageTensors, PodNeuronCoreMemUsageTotal, PodNeuronDeviceHwEccEvents,
 	},
 	"ClusterName-InstanceId-NodeName": {
-		NodeNeuronCoreUtil, NodeNeuronCoreMemUsageTotal, NodeNeuronDeviceHwEccEvents,
+		NodeNeuronCoreUtil, NodeNeuronCoreMemUsageConstants, NodeNeuronCoreMemUsageModel, NodeNeuronCoreMemUsageScratchpad,
+		NodeNeuronCoreMemUsageRuntime, NodeNeuronCoreMemUsageTensors, NodeNeuronCoreMemUsageTotal, NodeNeuronDeviceHwEccEvents,
 		NodeExecutionErrorsTotal, NodeNeuronDeviceRuntimeMemoryUsed, NodeNeuronExecutionLatency,
 	},
 	"ClusterName-Namespace-PodName-FullPodName": {
-		PodNeuronCoreUtil, PodNeuronCoreMemUsageTotal, PodNeuronDeviceHwEccEvents,
+		PodNeuronCoreUtil, PodNeuronCoreMemUsageConstants, PodNeuronCoreMemUsageModel, PodNeuronCoreMemUsageScratchpad,
+		PodNeuronCoreMemUsageRuntime, PodNeuronCoreMemUsageTensors, PodNeuronCoreMemUsageTotal, PodNeuronDeviceHwEccEvents,
 	},
 	"ClusterName-Namespace-PodName-ContainerName": {
-		ContainerNeuronCoreUtil, ContainerNeuronCoreMemUsageTotal, ContainerNeuronDeviceHwEccEvents,
+		ContainerNeuronCoreUtil, ContainerNeuronCoreMemUsageConstants, ContainerNeuronCoreMemUsageModel, ContainerNeuronCoreMemUsageScratchpad,
+		ContainerNeuronCoreMemUsageRuntime, ContainerNeuronCoreMemUsageTensors, ContainerNeuronCoreMemUsageTotal, ContainerNeuronDeviceHwEccEvents,
 	},
 	"ClusterName-InstanceId-NodeName-NeuronDevice": {
 		NodeNeuronDeviceHwEccEvents,
 	},
 	"ClusterName-Namespace-PodName-FullPodName-ContainerName": {
-		ContainerNeuronCoreUtil, ContainerNeuronCoreMemUsageTotal, ContainerNeuronDeviceHwEccEvents,
+		ContainerNeuronCoreUtil, ContainerNeuronCoreMemUsageConstants, ContainerNeuronCoreMemUsageModel, ContainerNeuronCoreMemUsageScratchpad,
+		ContainerNeuronCoreMemUsageRuntime, ContainerNeuronCoreMemUsageTensors, ContainerNeuronCoreMemUsageTotal, ContainerNeuronDeviceHwEccEvents,
 	},
 	"ClusterName-Namespace-PodName-FullPodName-NeuronDevice": {
 		PodNeuronDeviceHwEccEvents,
 	},
 	"ClusterName-Namespace-PodName-FullPodName-NeuronDevice-NeuronCore": {
-		PodNeuronCoreUtil, PodNeuronCoreMemUsageTotal,
+		PodNeuronCoreUtil, PodNeuronCoreMemUsageConstants, PodNeuronCoreMemUsageModel, PodNeuronCoreMemUsageScratchpad,
+		PodNeuronCoreMemUsageRuntime, PodNeuronCoreMemUsageTensors, PodNeuronCoreMemUsageTotal,
 	},
 	"ClusterName-InstanceId-NodeName-NeuronDevice-NeuronCore-InstanceType": {
-		NodeNeuronCoreUtil, NodeNeuronCoreMemUsageTotal,
+		NodeNeuronCoreUtil, NodeNeuronCoreMemUsageConstants, NodeNeuronCoreMemUsageModel, NodeNeuronCoreMemUsageScratchpad,
+		NodeNeuronCoreMemUsageRuntime, NodeNeuronCoreMemUsageTensors, NodeNeuronCoreMemUsageTotal,
 	},
 	"ClusterName-Namespace-PodName-FullPodName-ContainerName-NeuronDevice": {
 		ContainerNeuronDeviceHwEccEvents,
 	},
 	"ClusterName-Namespace-PodName-FullPodName-ContainerName-NeuronDevice-NeuronCore": {
-		ContainerNeuronCoreUtil, ContainerNeuronCoreMemUsageTotal,
+		ContainerNeuronCoreUtil, ContainerNeuronCoreMemUsageConstants, ContainerNeuronCoreMemUsageModel, ContainerNeuronCoreMemUsageScratchpad,
+		ContainerNeuronCoreMemUsageRuntime, ContainerNeuronCoreMemUsageTensors, ContainerNeuronCoreMemUsageTotal,
 	},
 }
 
