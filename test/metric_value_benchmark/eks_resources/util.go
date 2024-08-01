@@ -46,6 +46,8 @@ var (
 	eksNodeGpuSchema string
 	//go:embed test_schemas/cluster_gpu.json
 	eksClusterGpuSchema string
+	//go:embed test_schemas/node_hyperpod.json
+	eksHyperPodNodeSchema string
 
 	EksClusterValidationMap = map[string]string{
 		"Cluster":           eksClusterSchema,
@@ -66,6 +68,7 @@ var (
 		"PodGPU":            eksPodGpuSchema,
 		"NodeGPU":           eksNodeGpuSchema,
 		"ClusterGPU":        eksClusterGpuSchema,
+		"HyperPodNode":      eksHyperPodNodeSchema,
 	}
 )
 

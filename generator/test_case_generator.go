@@ -219,6 +219,10 @@ var testTypeToTestConfig = map[string][]testConfig{
 			testDir: "./test/gpu", terraformDir: "terraform/eks/daemon/gpu",
 			targets: map[string]map[string]struct{}{"arc": {"amd64": {}}},
 		},
+		{
+			testDir: "./test/hyperpod", terraformDir: "terraform/eks/daemon/hyperpod",
+			targets: map[string]map[string]struct{}{"arc": {"amd64": {}}},
+		},
 	},
 	"eks_deployment": {
 		{testDir: "./test/metric_value_benchmark"},
