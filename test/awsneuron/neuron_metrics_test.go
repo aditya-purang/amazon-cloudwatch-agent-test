@@ -93,7 +93,6 @@ var _ test_runner.ITestRunner = (*AwsNeuronTestRunner)(nil)
 
 func (t *AwsNeuronTestRunner) Validate() status.TestGroupResult {
 	var testResults []status.TestResult
-	time.Sleep(time.Minute * 3)
 	testResults = append(testResults, metric.ValidateMetrics(t.env, awsNeuronMetricIndicator, expectedDimsToMetrics)...)
 	testResults = append(testResults, metric.ValidateLogs(t.env))
 	return status.TestGroupResult{
@@ -111,7 +110,7 @@ func (t *AwsNeuronTestRunner) GetAgentConfigFileName() string {
 }
 
 func (t *AwsNeuronTestRunner) GetAgentRunDuration() time.Duration {
-	return 3 * time.Minute
+	return 6 * time.Minute
 }
 
 func (t *AwsNeuronTestRunner) GetMeasuredMetrics() []string {
