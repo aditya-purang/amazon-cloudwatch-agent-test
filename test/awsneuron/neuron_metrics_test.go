@@ -56,7 +56,7 @@ var expectedDimsToMetrics = map[string][]string{
 	//	ContainerNeuronCoreUtil, ContainerNeuronCoreMemUsageConstants, ContainerNeuronCoreMemUsageModel, ContainerNeuronCoreMemUsageScratchpad,
 	//	ContainerNeuronCoreMemUsageRuntime, ContainerNeuronCoreMemUsageTensors, ContainerNeuronCoreMemUsageTotal, ContainerNeuronDeviceHwEccEvents,
 	//},
-	"ClusterName-InstanceId-NodeName-NeuronDevice": {
+	"ClusterName-InstanceId-NeuronDevice-NodeName": {
 		NodeNeuronDeviceHwEccEvents,
 	},
 	//"ClusterName-Namespace-PodName-FullPodName-ContainerName": {
@@ -70,7 +70,7 @@ var expectedDimsToMetrics = map[string][]string{
 	//	PodNeuronCoreUtil, PodNeuronCoreMemUsageConstants, PodNeuronCoreMemUsageModel, PodNeuronCoreMemUsageScratchpad,
 	//	PodNeuronCoreMemUsageRuntime, PodNeuronCoreMemUsageTensors, PodNeuronCoreMemUsageTotal,
 	//},
-	"ClusterName-InstanceId-NodeName-NeuronDevice-NeuronCore-InstanceType": {
+	"ClusterName-InstanceId-InstanceType-NeuronCore-NeuronDevice-NodeName": {
 		NodeNeuronCoreUtil, NodeNeuronCoreMemUsageConstants, NodeNeuronCoreMemUsageModel, NodeNeuronCoreMemUsageScratchpad,
 		NodeNeuronCoreMemUsageRuntime, NodeNeuronCoreMemUsageTensors, NodeNeuronCoreMemUsageTotal,
 	},
@@ -110,7 +110,7 @@ func (t *AwsNeuronTestRunner) GetAgentConfigFileName() string {
 }
 
 func (t *AwsNeuronTestRunner) GetAgentRunDuration() time.Duration {
-	return 7 * time.Minute
+	return 9 * time.Minute
 }
 
 func (t *AwsNeuronTestRunner) GetMeasuredMetrics() []string {
