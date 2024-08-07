@@ -93,6 +93,7 @@ var _ test_runner.ITestRunner = (*AwsNeuronTestRunner)(nil)
 
 func (t *AwsNeuronTestRunner) Validate() status.TestGroupResult {
 	var testResults []status.TestResult
+	time.Sleep(time.Minute * 3)
 	testResults = append(testResults, metric.ValidateMetrics(t.env, awsNeuronMetricIndicator, expectedDimsToMetrics)...)
 	testResults = append(testResults, metric.ValidateLogs(t.env))
 	return status.TestGroupResult{

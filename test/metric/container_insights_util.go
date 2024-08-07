@@ -39,6 +39,18 @@ type dimToMetrics struct {
 func ValidateMetrics(env *environment.MetaData, metricFilter string, expectedDimsToMetrics map[string][]string) []status.TestResult {
 	var results []status.TestResult
 	dimsToMetrics := getMetricsInClusterDimension(env, metricFilter)
+
+	if metricFilter == "_neuron" {
+		log.Printf("ACTUAL")
+		for _, value := range dimsToMetrics {
+			log.Printf("dimKey: %s, metrics: %v", value.dimStr, value.metrics)
+		}
+		log.Printf("EXPECTED")
+		for key, value := range expectedDimsToMetrics {
+			log.Printf("dimKey: %s, metrics: %v", key, value)
+		}
+	}
+
 	for dims, metrics := range expectedDimsToMetrics {
 		var actual map[string][][]types.Dimension
 		for _, dtm := range dimsToMetrics {
