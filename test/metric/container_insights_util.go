@@ -43,7 +43,7 @@ func ValidateMetrics(env *environment.MetaData, metricFilter string, expectedDim
 	if metricFilter == "_neuron" {
 		log.Printf("ACTUAL")
 		for _, value := range dimsToMetrics {
-			log.Printf("dimKey: %s, metrics: %v", value.dimStr, value.metrics)
+			log.Printf("dimKey: %s, metrics: %v", value.dimStr, metricsToString(value.metrics))
 		}
 		log.Printf("EXPECTED")
 		for key, value := range expectedDimsToMetrics {
@@ -116,9 +116,20 @@ func getMetricsInClusterDimension(env *environment.MetaData, metricFilter string
 		for _, d := range m.Dimensions {
 			dims = append(dims, *d.Name)
 		}
+		var dimsVal []string
+		for _, d := range m.Dimensions {
+			dimsVal = append(dimsVal, *d.Value)
+		}
+
 		sort.Sort(sort.StringSlice(dims))
+		sort.Sort(sort.StringSlice(dimsVal))
 		dimsKey := strings.Join(dims, dimDelimiter)
+		dimsVals := strings.Join(dimsVal, dimDelimiter)
 		log.Printf("processing dims: %s", dimsKey)
+
+		if strings.Contains(*m.MetricName, metricFilter) {
+			log.Printf("metric name: %s, dimensionKey: %s, dimensionVal:%s", *m.MetricName, dimsKey, dimsVals)
+		}
 
 		var dtm dimToMetrics
 		for _, ele := range results {
@@ -239,4 +250,28 @@ func ValidateLogs(env *environment.MetaData) status.TestResult {
 
 	testResult.Status = status.SUCCESSFUL
 	return testResult
+}
+
+func metricsToString(metrics map[string][][]types.Dimension) string {
+	val := ""
+
+	for metric, dimensions := range metrics {
+		val += fmt.Sprintf("%s: %s\n", metric, dimensionListToStringList(dimensions))
+	}
+
+	return val
+}
+
+func dimensionListToStringList(dims [][]types.Dimension) string {
+	listOfString := "{"
+	for _, ListOfDimensions := range dims {
+		dimensionString := "("
+		for _, dim := range ListOfDimensions {
+			dimensionString += fmt.Sprintf("%s:%s-", *dim.Name, *dim.Value)
+		}
+		dimensionString += ")"
+		listOfString += dimensionString + ","
+	}
+	listOfString += "}"
+	return listOfString
 }
