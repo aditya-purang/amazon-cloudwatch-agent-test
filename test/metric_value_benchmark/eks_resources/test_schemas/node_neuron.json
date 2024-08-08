@@ -15,7 +15,6 @@
     "availability_zone": {},
     "kubernetes": {},
     "region": {},
-    "runtime_tag": {},
     "subnet_id": {},
     "node_neuron_execution_errors_total": {},
     "node_neuron_execution_latency": {},
@@ -29,7 +28,6 @@
     "Timestamp",
     "Type",
     "Version",
-    "CloudWatchMetrics",
-    "runtime_tag"
+    "CloudWatchMetrics"
   ]
 }

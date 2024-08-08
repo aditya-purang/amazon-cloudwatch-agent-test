@@ -17,7 +17,6 @@
     "kubernetes": {},
     "node_neurondevice_hw_ecc_events_mem_ecc_corrected": {},
     "region": {},
-    "runtime_tag": {},
     "subnet_id": {},
     "node_neurondevice_hw_ecc_events_total": {}
   },
@@ -30,7 +29,6 @@
     "Timestamp",
     "Type",
     "Version",
-    "CloudWatchMetrics",
-    "runtime_tag"
+    "CloudWatchMetrics"
   ]
 }

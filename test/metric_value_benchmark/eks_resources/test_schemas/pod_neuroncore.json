@@ -21,7 +21,6 @@
     "availability_zone": {},
     "kubernetes": {},
     "region": {},
-    "runtime_tag": {},
     "subnet_id": {},
     "pod_neuroncore_memory_usage_constants": {},
     "pod_neuroncore_memory_usage_model_code": {},
@@ -45,7 +44,6 @@
     "Timestamp",
     "Type",
     "Version",
-    "CloudWatchMetrics",
-    "runtime_tag"
+    "CloudWatchMetrics"
   ]
 }
