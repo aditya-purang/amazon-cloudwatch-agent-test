@@ -116,20 +116,9 @@ func getMetricsInClusterDimension(env *environment.MetaData, metricFilter string
 		for _, d := range m.Dimensions {
 			dims = append(dims, *d.Name)
 		}
-		var dimsVal []string
-		for _, d := range m.Dimensions {
-			dimsVal = append(dimsVal, *d.Value)
-		}
-
 		sort.Sort(sort.StringSlice(dims))
-		sort.Sort(sort.StringSlice(dimsVal))
 		dimsKey := strings.Join(dims, dimDelimiter)
-		dimsVals := strings.Join(dimsVal, dimDelimiter)
 		log.Printf("processing dims: %s", dimsKey)
-
-		if strings.Contains(*m.MetricName, metricFilter) {
-			log.Printf("metric name: %s, dimensionKey: %s, dimensionVal:%s", *m.MetricName, dimsKey, dimsVals)
-		}
 
 		var dtm dimToMetrics
 		for _, ele := range results {
@@ -231,7 +220,7 @@ func ValidateLogs(env *environment.MetaData) status.TestResult {
 						return "", fmt.Errorf("failed to unmarshal log file: %w", innerErr)
 					}
 
-					// log.Printf("eksClusterType is: %s", eksClusterType.Type)
+					//log.Printf("eksClusterType is: %s", eksClusterType.Type)
 					jsonSchema, ok := eks_resources.EksClusterValidationMap[eksClusterType.Type]
 					if !ok {
 						return "", errors.New("invalid cluster type provided")
