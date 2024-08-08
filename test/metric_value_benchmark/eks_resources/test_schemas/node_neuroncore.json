@@ -32,7 +32,6 @@
     "ClusterName",
     "InstanceId",
     "InstanceType",
-    "Namespace",
     "NeuronCore",
     "NeuronDevice",
     "NodeName",
