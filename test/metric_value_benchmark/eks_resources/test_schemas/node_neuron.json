@@ -19,7 +19,7 @@
     "subnet_id": {},
     "node_neuron_execution_errors_total": {},
     "node_neuron_execution_latency": {},
-    "node_neurondevice_runtime_memory_used_bytes": {},
+    "node_neurondevice_runtime_memory_used_bytes": {}
   },
   "required": [
     "ClusterName",
