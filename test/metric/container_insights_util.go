@@ -248,7 +248,7 @@ func ValidateLogsFrequency(env *environment.MetaData) status.TestResult {
 		Status: status.FAILED,
 	}
 
-	end := time.Now().Add(time.Duration(-2) * time.Minute)
+	end := time.Now().Add(time.Duration(-2) * time.Minute).Truncate(time.Minute)
 	start := end.Add(time.Duration(-1) * time.Minute)
 	group := fmt.Sprintf("/aws/containerinsights/%s/performance", env.EKSClusterName)
 
