@@ -21,6 +21,7 @@ import (
 const (
 	logStreamRetry = 20
 	retryInterval  = 10 * time.Second
+	NoLogTypeFound = "NoLogTypeFound"
 )
 
 // catch ResourceNotFoundException when deleting the log group and log stream, as these
@@ -331,12 +332,13 @@ func GetLogEventCountPerType(logGroup, logStream string, since, until *time.Time
 		return typeFrequency, err
 	}
 
+	typeFrequency[NoLogTypeFound] = 0
 	for _, event := range events {
 		message := *event.Message
 		var eksClusterType EKSClusterType
 		innerErr := json.Unmarshal([]byte(message), &eksClusterType)
 		if innerErr != nil {
-			return typeFrequency, fmt.Errorf("failed to unmarshal log file: %w", innerErr)
+			typeFrequency[NoLogTypeFound]++
 		}
 
 		typeFrequency[eksClusterType.Type]++

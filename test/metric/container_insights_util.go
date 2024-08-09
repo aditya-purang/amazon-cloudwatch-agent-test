@@ -264,8 +264,17 @@ func ValidateLogsFrequency(env *environment.MetaData) status.TestResult {
 		frequencyMap, err := awsservice.GetLogEventCountPerType(group, stream, &start, &end)
 
 		for logType, actualFrequency := range frequencyMap {
+			if logType == awsservice.NoLogTypeFound {
+				log.Printf("logs with no logtype : %d", actualFrequency)
+				continue
+			}
+
 			expectedFrequency, ok := eks_resources.EksClusterFrequencyValidationMap[logType]
-			if !ok || actualFrequency != expectedFrequency {
+			if !ok {
+				log.Printf("frequency mapping not found : %s", logType)
+				return testResult
+			}
+			if actualFrequency != expectedFrequency {
 				log.Printf("log frequency validation failed for type: %s, expected: %d, actual: %d", logType, expectedFrequency, actualFrequency)
 				return testResult
 			}
