@@ -24,7 +24,7 @@ var expectedDimsToMetrics = map[string][]string{
 		NodeNeuronCoreUtil, NodeNeuronCoreMemUsageConstants, NodeNeuronCoreMemUsageModel, NodeNeuronCoreMemUsageScratchpad,
 		NodeNeuronCoreMemUsageRuntime, NodeNeuronCoreMemUsageTensors, NodeNeuronCoreMemUsageTotal, NodeNeuronDeviceHwEccEvents,
 		NodeExecutionErrorsTotal, NodeNeuronDeviceRuntimeMemoryUsed, NodeNeuronExecutionLatency,
-	//},
+	},
 	//"ClusterName-InstanceId-NodeName": {
 	//	NodeNeuronCoreUtil, NodeNeuronCoreMemUsageConstants, NodeNeuronCoreMemUsageModel, NodeNeuronCoreMemUsageScratchpad,
 	//	NodeNeuronCoreMemUsageRuntime, NodeNeuronCoreMemUsageTensors, NodeNeuronCoreMemUsageTotal, NodeNeuronDeviceHwEccEvents,
