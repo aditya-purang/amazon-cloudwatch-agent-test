@@ -84,11 +84,9 @@ var (
 	}
 
 	EksClusterFrequencyValidationMap = map[string]int{
-		"ContainerAWSNeuronCore": 32,
-		"PodAWSNeuronCore":       32,
-		"NodeAWSNeuronCore":      32,
-		"NodeAWSNeuronDevice":    16,
-		"NodeAWSNeuron":          1,
+		"NodeAWSNeuronCore":   32,
+		"NodeAWSNeuronDevice": 16,
+		"NodeAWSNeuron":       1,
 	}
 )
 
