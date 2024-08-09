@@ -67,7 +67,7 @@ func (t *AwsNeuronTestRunner) GetAgentConfigFileName() string {
 }
 
 func (t *AwsNeuronTestRunner) GetAgentRunDuration() time.Duration {
-	return 10 * time.Minute
+	return 20 * time.Minute
 }
 
 func (t *AwsNeuronTestRunner) GetMeasuredMetrics() []string {
