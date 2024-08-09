@@ -39,18 +39,6 @@ type dimToMetrics struct {
 func ValidateMetrics(env *environment.MetaData, metricFilter string, expectedDimsToMetrics map[string][]string) []status.TestResult {
 	var results []status.TestResult
 	dimsToMetrics := getMetricsInClusterDimension(env, metricFilter)
-
-	if metricFilter == "_neuron" {
-		log.Printf("ACTUAL")
-		for _, value := range dimsToMetrics {
-			log.Printf("dimKey: %s, metrics: %v", value.dimStr, metricsToString(value.metrics))
-		}
-		log.Printf("EXPECTED")
-		for key, value := range expectedDimsToMetrics {
-			log.Printf("dimKey: %s, metrics: %v", key, value)
-		}
-	}
-
 	for dims, metrics := range expectedDimsToMetrics {
 		var actual map[string][][]types.Dimension
 		for _, dtm := range dimsToMetrics {
@@ -285,28 +273,4 @@ func ValidateLogsFrequency(env *environment.MetaData) status.TestResult {
 
 	testResult.Status = status.SUCCESSFUL
 	return testResult
-}
-
-func metricsToString(metrics map[string][][]types.Dimension) string {
-	val := ""
-
-	for metric, dimensions := range metrics {
-		val += fmt.Sprintf("%s: %s\n", metric, dimensionListToStringList(dimensions))
-	}
-
-	return val
-}
-
-func dimensionListToStringList(dims [][]types.Dimension) string {
-	listOfString := "{"
-	for _, ListOfDimensions := range dims {
-		dimensionString := "("
-		for _, dim := range ListOfDimensions {
-			dimensionString += fmt.Sprintf("%s:%s-", *dim.Name, *dim.Value)
-		}
-		dimensionString += ")"
-		listOfString += dimensionString + ","
-	}
-	listOfString += "}"
-	return listOfString
 }
