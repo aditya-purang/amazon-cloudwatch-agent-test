@@ -51,6 +51,7 @@ func (t *AwsNeuronTestRunner) Validate() status.TestGroupResult {
 	var testResults []status.TestResult
 	testResults = append(testResults, metric.ValidateMetrics(t.env, awsNeuronMetricIndicator, expectedDimsToMetrics)...)
 	testResults = append(testResults, metric.ValidateLogs(t.env))
+	testResults = append(testResults, metric.ValidateLogsFrequency(t.env))
 	return status.TestGroupResult{
 		Name:        t.GetTestName(),
 		TestResults: testResults,
@@ -66,7 +67,7 @@ func (t *AwsNeuronTestRunner) GetAgentConfigFileName() string {
 }
 
 func (t *AwsNeuronTestRunner) GetAgentRunDuration() time.Duration {
-	return 35 * time.Minute
+	return 10 * time.Minute
 }
 
 func (t *AwsNeuronTestRunner) GetMeasuredMetrics() []string {

@@ -5,6 +5,7 @@ package awsservice
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -319,4 +320,27 @@ func AssertNoDuplicateLogs() LogEventsValidator {
 		}
 		return nil
 	}
+}
+
+func GetLogEventCountPerType(logGroup, logStream string, since, until *time.Time) (map[string]int, error) {
+	var typeFrequency = make(map[string]int)
+	events, err := getLogsSince(logGroup, logStream, since, until)
+
+	// if there is an error, return the empty map
+	if err != nil {
+		return typeFrequency, err
+	}
+
+	for _, event := range events {
+		message := *event.Message
+		var eksClusterType EKSClusterType
+		innerErr := json.Unmarshal([]byte(message), &eksClusterType)
+		if innerErr != nil {
+			return typeFrequency, fmt.Errorf("failed to unmarshal log file: %w", innerErr)
+		}
+
+		typeFrequency[eksClusterType.Type]++
+	}
+
+	return typeFrequency, nil
 }
