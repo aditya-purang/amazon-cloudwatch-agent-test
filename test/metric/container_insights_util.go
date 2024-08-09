@@ -268,17 +268,17 @@ func ValidateLogsFrequency(env *environment.MetaData) status.TestResult {
 
 			actualFrequency, ok := frequencyMap[logType]
 			if !ok {
-				log.Printf("no log with the expected logtype found : %s", logType)
+				log.Printf("no log with the expected logtype found : %s, start time : %s", logType, start.GoString())
 				return testResult
 			}
 			if actualFrequency != expectedFrequency {
-				log.Printf("log frequency validation failed for type: %s, expected: %d, actual: %d", logType, expectedFrequency, actualFrequency)
+				log.Printf("log frequency validation failed for type: %s, expected: %d, actual: %d, start time: %s", logType, expectedFrequency, actualFrequency, start.GoString())
 				return testResult
 			}
 		}
 
 		if err != nil {
-			log.Printf("log validation (%s/%s) failed: %v", group, stream, err)
+			log.Printf("log validation (%s/%s) failed: %v, start time : %s", group, stream, err, start)
 			return testResult
 		}
 	}
