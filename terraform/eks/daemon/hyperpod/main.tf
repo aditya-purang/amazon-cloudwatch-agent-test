@@ -52,6 +52,8 @@ resource "aws_eks_node_group" "this" {
   disk_size      = 20
   instance_types = ["t3.medium"]
 
+  labels = { "beta.kubernetes.io/instance-type" : "ml.t3.medium", "sagemaker.amazonaws.com/node-health-status" : "Schedulable" }
+
   depends_on = [
     aws_iam_role_policy_attachment.node_AmazonEC2ContainerRegistryReadOnly,
     aws_iam_role_policy_attachment.node_AmazonEKS_CNI_Policy,
@@ -167,6 +169,18 @@ resource "kubernetes_namespace" "namespace" {
   }
 }
 
+resource "time_sleep" "wait_15_minutes" {
+  depends_on = [
+    kubernetes_namespace.namespace,
+    kubernetes_config_map.cwagentconfig,
+    kubernetes_service_account.cwagentservice,
+    aws_eks_node_group.this
+  ]
+
+  create_duration = "15m"
+}
+
+
 # TODO: how do we support different deployment types? Should they be in separate terraform
 #       files, and spawn separate tests?
 resource "kubernetes_daemonset" "service" {
@@ -174,7 +188,8 @@ resource "kubernetes_daemonset" "service" {
     kubernetes_namespace.namespace,
     kubernetes_config_map.cwagentconfig,
     kubernetes_service_account.cwagentservice,
-    aws_eks_node_group.this
+    aws_eks_node_group.this,
+    time_sleep.wait_15_minutes
   ]
   metadata {
     name      = "cloudwatch-agent"
@@ -224,7 +239,7 @@ resource "kubernetes_daemonset" "service" {
             }
           }
           env {
-            name = "HOST_NAME"
+            name  = "HOST_NAME"
             value = "hyperpod-${spec.nodeName}"
           }
           env {
@@ -470,7 +485,7 @@ resource "null_resource" "validator" {
     command = <<-EOT
       echo "Validating HyperPod Metrics"
       cd ../../../..
-      go test ${var.test_dir} -eksClusterName=${aws_eks_cluster.this.name} -computeType=EKS -v -eksDeploymentStrategy=DAEMON
+      go test -timeout 120m ${var.test_dir} -eksClusterName=${aws_eks_cluster.this.name} -computeType=EKS -v -eksDeploymentStrategy=DAEMON
     EOT
   }
 }

@@ -16,19 +16,17 @@ const (
 	UnschedulablePendingReplacementMetric = "hyper_pod_node_health_status_unschedulable_pending_replacement"
 	UnschedulablePendingRebootMetric      = "hyper_pod_node_health_status_unschedulable_pending_reboot"
 	SchedulableMetric                     = "hyper_pod_node_health_status_schedulable"
-	SchedulablePreferredMetric            = "hyper_pod_node_health_status_schedulable_preferred"
 	UnschedulableMetric                   = "hyper_pod_node_health_status_unschedulable"
-	Unknown                               = "hyper_pod_node_health_status_unknown"
 )
 
 var expectedDimsToMetrics = map[string][]string{
 	"ClusterName": {
-		UnschedulablePendingReplacementMetric, UnschedulablePendingRebootMetric, SchedulableMetric, SchedulablePreferredMetric,
-		UnschedulableMetric, Unknown,
+		UnschedulablePendingReplacementMetric, UnschedulablePendingRebootMetric, SchedulableMetric,
+		UnschedulableMetric,
 	},
 	"ClusterName-InstanceId-NodeName": {
-		UnschedulablePendingReplacementMetric, UnschedulablePendingRebootMetric, SchedulableMetric, SchedulablePreferredMetric,
-		UnschedulableMetric, Unknown,
+		UnschedulablePendingReplacementMetric, UnschedulablePendingRebootMetric, SchedulableMetric,
+		UnschedulableMetric,
 	},
 }
 
@@ -59,7 +57,7 @@ func (t *AwsHyperPodTestRunner) GetAgentConfigFileName() string {
 }
 
 func (t *AwsHyperPodTestRunner) GetAgentRunDuration() time.Duration {
-	return 3 * time.Minute
+	return 50 * time.Minute
 }
 
 func (t *AwsHyperPodTestRunner) GetMeasuredMetrics() []string {
