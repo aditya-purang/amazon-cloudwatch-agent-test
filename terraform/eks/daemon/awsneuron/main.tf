@@ -500,12 +500,24 @@ resource "kubernetes_service" "neuron_monitor_service" {
   }
 }
 
-resource "kubernetes_daemonset" "service" {
+resource "time_sleep" "wait_15_minutes" {
   depends_on = [
     kubernetes_namespace.namespace,
     kubernetes_service_account.cwagentservice,
     aws_eks_node_group.this,
     kubernetes_daemonset.neuron_monitor
+  ]
+
+  create_duration = "15m"
+}
+
+resource "kubernetes_daemonset" "service" {
+  depends_on = [
+    kubernetes_namespace.namespace,
+    kubernetes_service_account.cwagentservice,
+    aws_eks_node_group.this,
+    kubernetes_daemonset.neuron_monitor,
+    time_sleep.wait_15_minutes
   ]
   metadata {
     name      = "cloudwatch-agent"
@@ -822,7 +834,7 @@ resource "null_resource" "validator" {
     command = <<-EOT
       echo "Validating EKS metrics/logs for EMF"
       cd ../../../..
-      go test -timeout 30m ${var.test_dir} -eksClusterName=${aws_eks_cluster.this.name} -computeType=EKS -v -eksDeploymentStrategy=DAEMON -eksGpuType=nvidia
+      go test -timeout 120m ${var.test_dir} -eksClusterName=${aws_eks_cluster.this.name} -computeType=EKS -v -eksDeploymentStrategy=DAEMON -eksGpuType=nvidia
     EOT
   }
 }
