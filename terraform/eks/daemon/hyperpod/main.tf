@@ -239,10 +239,6 @@ resource "kubernetes_daemonset" "service" {
             }
           }
           env {
-            name  = "HOST_NAME"
-            value = "hyperpod-${spec.nodeName}"
-          }
-          env {
             name = "K8S_NAMESPACE"
             value_from {
               field_ref {
