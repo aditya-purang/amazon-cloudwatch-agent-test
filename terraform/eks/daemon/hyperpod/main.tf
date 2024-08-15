@@ -186,7 +186,6 @@ resource "time_sleep" "wait_15_minutes" {
 resource "kubernetes_daemonset" "service" {
   depends_on = [
     kubernetes_namespace.namespace,
-    kubernetes_config_map.cwagentconfig,
     kubernetes_service_account.cwagentservice,
     aws_eks_node_group.this,
     time_sleep.wait_15_minutes
@@ -239,6 +238,14 @@ resource "kubernetes_daemonset" "service" {
             }
           }
           env {
+            name = "HOST_NAME"
+            value_from {
+              field_ref {
+                field_path = "spec.nodeName"
+              }
+            }
+          }
+          env {
             name = "K8S_NAMESPACE"
             value_from {
               field_ref {
@@ -278,6 +285,16 @@ resource "kubernetes_daemonset" "service" {
           volume_mount {
             mount_path = "/dev/disk"
             name       = "devdisk"
+            read_only  = true
+          }
+          volume_mount {
+            mount_path = "/etc/amazon-cloudwatch-observability-agent-cert"
+            name       = "agenttls"
+            read_only  = true
+          }
+          volume_mount {
+            mount_path = "/var/lib/kubelet/pod-resources"
+            name       = "kubelet-podresources"
             read_only  = true
           }
         }
@@ -323,54 +340,20 @@ resource "kubernetes_daemonset" "service" {
             path = "/dev/disk"
           }
         }
-
-        container {
-          name              = "emf-eks-testing"
-          image             = "alpine/socat:latest"
-          image_pull_policy = "Always"
-          resources {
-            limits = {
-              "cpu" : "50m",
-              "memory" : "50Mi"
-            }
-            requests = {
-              "cpu" : "50m",
-              "memory" : "50Mi"
-            }
+        volume {
+          name = "kubelet-podresources"
+          host_path {
+            path = "/var/lib/kubelet/pod-resources"
           }
-
-          command = [
-            "/bin/sh",
-            "-c",
-            "while true; do CURRENT_TIME=\"$(date +%s%3N)\"; TIMESTAMP=\"$(($CURRENT_TIME *1000))\"; echo '{\"_aws\":{\"Timestamp\":'\"$${TIMESTAMP}\"',\"LogGroupName\":\"EMFEKSLogGroup\",\"CloudWatchMetrics\":[{\"Namespace\":\"EMFEKSNameSpace\",\"Dimensions\":[[\"Type\",\"ClusterName\"]],\"Metrics\":[{\"Name\":\"EMFCounter\",\"Unit\":\"Count\"}]}]},\"Type\":\"Counter\",\"EMFCounter\":5, \"ClusterName\": \"${aws_eks_cluster.this.name}\"}' | socat -v -t 0 - UDP:0.0.0.0:25888; sleep 60; done"
-          ]
-          env {
-            name = "HOST_IP"
-            value_from {
-              field_ref {
-                field_path = "status.hostIP"
-              }
+        }
+        volume {
+          name = "agenttls"
+          secret {
+            secret_name = "amazon-cloudwatch-observability-agent-cert"
+            items {
+              key  = "ca.crt"
+              path = "tls-ca.crt"
             }
-          }
-          env {
-            name = "HOST_NAME"
-            value_from {
-              field_ref {
-                field_path = "spec.nodeName"
-              }
-            }
-          }
-          env {
-            name = "K8S_NAMESPACE"
-            value_from {
-              field_ref {
-                field_path = "metadata.namespace"
-              }
-            }
-          }
-          volume_mount {
-            mount_path = "/etc/cwagentconfig"
-            name       = "cwagentconfig"
           }
         }
         service_account_name             = "cloudwatch-agent"
